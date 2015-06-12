@@ -6,7 +6,7 @@
 #ifndef GVLIB_H
 #define GVLIB_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #define GV_DEVICES 		"/devices"
 #define GV_SENSORS 		"/sensors"
