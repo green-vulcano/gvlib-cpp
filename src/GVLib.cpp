@@ -1,4 +1,15 @@
+/*
+ * GreenVulcano Kit for Arduino
+ * Copyright (c) 2015 - GreenVulcano
+ */
+
 #include "GVLib.h"
+#include <Client.h>
+#include <PubSubClient.h>
+#include <Ethernet.h>
+
+
+namespace gv {
 
 /**************************************************************************
  * 
@@ -622,3 +633,5 @@ void GVLib::sendBuffer(T& client, uint8_t chunkSize, uint8_t wait_time) {
 	resetBuffer();
 }
 */
+
+} //namespace gv

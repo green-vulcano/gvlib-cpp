@@ -1,10 +1,12 @@
+/*
+ * GreenVulcano Kit for Arduino
+ * Copyright (c) 2015 - GreenVulcano
+ */
+
 #ifndef GVLIB_H
 #define GVLIB_H
 
 #include "Arduino.h"
-#include <Client.h>
-#include <PubSubClient.h>
-#include <Ethernet.h>
 
 #define GV_DEVICES 		"/devices"
 #define GV_SENSORS 		"/sensors"
@@ -19,6 +21,7 @@
 #define DEVICE_ID_SIZE 10
 #define DEVICE_NAME_SIZE 20
 #define HOST_SIZE 20
+#define TOPIC_NAME_SIZE 32
 
 #define MAX_ATTEMPTS 10
 
@@ -40,6 +43,15 @@
 /devices/<ID_DEVICE>/status
 */
 
+class Client;
+class EthernetClient;
+class PubSubClient;
+
+namespace gv {
+
+
+class Callback;
+
 class GVLib {
 
 	private:
@@ -57,7 +69,7 @@ class GVLib {
   		char 			_host[HOST_SIZE]; //gv
   		uint16_t 		_port; //gv
 
-  		char 			_will_topic[32];
+  		char 			_will_topic[TOPIC_NAME_SIZE];
   		char 			_will_message[32];
 
   		PubSubClient* 	_client;
@@ -115,4 +127,65 @@ class GVLib {
 		int addActuator(uint8_t id, char* topic, void (*callback)(char*));
 };
 
+
+/**
+	A class to hold callback delegates in GVLib.
+
+	TODO: implement as a flat linked list: just one callback pointing to
+	the next, and the selection of the right callback(/s) will be up to the
+	`call` method.
+*/
+class Callback {
+public:
+	typedef void* (*FunctionPointer)(void*);
+private:
+	char*            topic;
+	Callback*        next;
+	FunctionPointer  function;
+
+	static Callback* head;
+
+public:
+	/**
+		Adds a new callback to the global chain.
+		Creates a new `Callback` instance, sets the corresponding values,
+		and returns a pointer to it.
+		@param  topic the topic on which this `Callback` shall listen.
+		@param  fn    the function to call back.
+		@return a pointer to the newly created instance (or 0 if the callback
+		        was already found into the chain)
+	*/
+	static Callback* add(const char* topic, FunctionPointer fn);
+
+	/**
+		Removes a callback from the global chain.
+		Removes the `Callback` instance registered for the given topic and
+		function pointer (or just for the given topic if no function pointer
+		is specified).
+		@param  topic the topic for which the callback shall be removed
+		@param  fn    the function pointer to remove as a callback. Do not
+		              pass it (or pass `0`) to remove ALL callbacks for a
+					  given topic
+		@return the number of callbacks found and removed from the chain.
+	*/
+	static int  remove(const char* topic, FunctionPointer fn=0);
+
+	/**
+		Invokes the appropriate callbacks.
+		Calls all registered callbacks for the given topic.
+		@param topic   the topic for which to trigger the callbacks.
+		@param payload the payload that shall be passed to the first callback
+		               in the chain for the specific topic.
+		@return the data returned by the last callback in the chain for the
+		        specific topic.
+	*/
+	static void* call(const char* topic, void* payload);
+	/**
+		Performs clean-up and releases memory.
+	*/
+	static void dispose();
+};
+
+
+} // namespace gv
 #endif GVLIB_H
