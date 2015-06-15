@@ -8,14 +8,14 @@
 
 #include <Arduino.h>
 
-#define GV_DEVICES 		"/devices"
-#define GV_SENSORS 		"/sensors"
-#define GV_ACTUATORS 	"/actuators"
-#define GV_SENSOR_DATA 	"/data"
-#define GV_STATUS		"/status"
+#define GV_DEVICES      "/devices"
+#define GV_SENSORS      "/sensors"
+#define GV_ACTUATORS    "/actuators"
+#define GV_SENSOR_DATA  "/data"
+#define GV_STATUS       "/status"
 
 #define NUMBER_ANALOG_PINS 6
-#define NUMBER_DIGITAL_PINS 14<
+#define NUMBER_DIGITAL_PINS 14
 #define BUFFER_SIZE 160
 
 #define DEVICE_ID_SIZE 10
