@@ -4,8 +4,9 @@
  */
 
 #include "GVLib.h"
+#include "PubSubClient.h"
+
 #include <Client.h>
-#include <PubSubClient.h>
 #include <Ethernet.h>
 
 
