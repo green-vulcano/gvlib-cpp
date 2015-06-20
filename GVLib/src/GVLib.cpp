@@ -100,10 +100,11 @@ void GVLib::setId(String id) {
 
 /**************************************************************************
  * Set device name
- **************************************************************************/
+ *************************************************************************
 void GVLib::setName(char* name) {
 	strcpy(_deviceName, name);
 }
+*/
 
 /**************************************************************************
  * Set device name
@@ -634,5 +635,76 @@ void GVLib::sendBuffer(T& client, uint8_t chunkSize, uint8_t wait_time) {
 	resetBuffer();
 }
 */
+
+
+
+/* Class Callback --- definition */
+
+Callback* Callback::head_ = NULL;
+
+Callback::Callback(const char* topic, CallbackPointer fn) : next_(NULL), function_(NULL) {
+	strcpy(topic_, topic);
+	function_ = fn;
+}
+
+
+Callback* Callback::add(const char* topic, CallbackPointer fn) {
+	Callback* cb = new Callback(topic, fn);
+	if (head_) {
+		Callback* ptr = head_;
+		while (ptr->next_) ptr = ptr->next_;
+		return ptr->next_ = cb;
+	}
+	return head_ = cb;
+}
+
+int Callback::remove(const char* topic, CallbackPointer fn) {
+	Callback *ptr = head_, *prev;
+	while (find_(topic, fn, &ptr, &prev)) {
+		Callback *bye = ptr;
+		ptr = ptr->next_;
+		if (prev) { // there is a 'previous' callback instance
+			prev->next_ = ptr;
+		} else {
+			head_ = ptr;
+		}
+		delete bye;
+	}
+}
+
+void* Callback::call(const char* topic, void* payload) {
+	Callback *ptr = head_, *prev;
+	void* result = NULL;
+	while (find_(topic, NULL, &ptr, &prev)) {
+		if (ptr->function_) result = ptr->function_(payload);
+		if (result) payload = result;
+	}
+	return result;
+}
+
+
+bool Callback::find_(const char* topic, CallbackPointer fn,
+							Callback** ptr, Callback** prev) {
+	Callback* p = *ptr;
+	*prev = p;
+	while (p) {
+		if (!strcmp(p->topic_, topic) && fn ? p->function_ == fn : true) {
+			*ptr = p;
+			return true;
+		}
+		*prev = p;
+		p = p->next_;
+	}
+	return false;
+}
+
+void Callback::dispose() {
+	Callback  *bye, *p = head_;
+	while (p) {
+		bye = p;
+		p = p->next_;
+		delete p;
+	}
+}
 
 } //namespace gv

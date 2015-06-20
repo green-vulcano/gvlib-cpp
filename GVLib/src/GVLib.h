@@ -94,7 +94,7 @@ class GVLib {
 		GVLib(byte server[], uint16_t port, EthernetClient ethClient);
 		void setId(char* id);
 		void setId(String id);
-		void setName(char* name);
+//		void setName(char* name);
 		void setName(String name);
 		void setIp(char* ip);
 		void setIp(String ip);
@@ -137,15 +137,8 @@ class GVLib {
 */
 class Callback {
 public:
-	typedef void* (*FunctionPointer)(void*);
-private:
-	char*            topic;
-	Callback*        next;
-	FunctionPointer  function;
+	typedef void* (*CallbackPointer)(void*);
 
-	static Callback* head;
-
-public:
 	/**
 		Adds a new callback to the global chain.
 		Creates a new `Callback` instance, sets the corresponding values,
@@ -155,7 +148,7 @@ public:
 		@return a pointer to the newly created instance (or 0 if the callback
 		        was already found into the chain)
 	*/
-	static Callback* add(const char* topic, FunctionPointer fn);
+	static Callback* add(const char* topic, CallbackPointer fn);
 
 	/**
 		Removes a callback from the global chain.
@@ -168,7 +161,7 @@ public:
 					  given topic
 		@return the number of callbacks found and removed from the chain.
 	*/
-	static int  remove(const char* topic, FunctionPointer fn=0);
+	static int remove(const char* topic, CallbackPointer fn=NULL);
 
 	/**
 		Invokes the appropriate callbacks.
@@ -184,6 +177,30 @@ public:
 		Performs clean-up and releases memory.
 	*/
 	static void dispose();
+
+private:
+	char             topic_[TOPIC_NAME_SIZE];
+	Callback*        next_;
+	CallbackPointer  function_;
+
+	static Callback* head_;
+	
+	Callback(const char* topic, CallbackPointer fn);
+	
+	/**
+	 * Finds a `Callback` instance matching the given topic, and (optionally) function pointer.
+	 * @param topic the topic to find in the matching instance
+	 * @param fn    the specific function pointer to find in the matching instance. If null
+	 *              is passed, any function pointer is verified.
+	 * @param ptr   pass the address of a `Callback*` variable. If the function returns
+	 *              `true`, this will contain the address of the found instance.
+	 * @param prev  pass the address of a `Callback*` variable. If the function returns
+	 *              `true`, this will contain the address of the instance PREVIOUS TO the
+	 *              found instance, or `NULL` if the found instance is the first one
+	 *              (i.e. `head` points to it)
+	 */
+	static bool find_(const char* topic, CallbackPointer fn, Callback** ptr, Callback** prev); 
+
 };
 
 
