@@ -678,6 +678,7 @@ void* Callback::call(const char* topic, void* payload) {
 	while (find_(topic, NULL, &ptr, &prev)) {
 		if (ptr->function_) result = ptr->function_(payload);
 		if (result) payload = result;
+		ptr = ptr->next_;
 	}
 	return result;
 }
@@ -688,7 +689,10 @@ bool Callback::find_(const char* topic, CallbackPointer fn,
 	Callback* p = *ptr;
 	*prev = p;
 	while (p) {
-		if (!strcmp(p->topic_, topic) && fn ? p->function_ == fn : true) {
+		if (!strcmp(p->topic_, topic)) {
+			if (fn != NULL && fn != p->function_) {
+				continue;
+			}
 			*ptr = p;
 			return true;
 		}
@@ -703,8 +707,9 @@ void Callback::dispose() {
 	while (p) {
 		bye = p;
 		p = p->next_;
-		delete p;
+		delete bye;
 	}
+	head_ = NULL;
 }
 
 } //namespace gv
