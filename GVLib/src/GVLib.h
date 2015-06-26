@@ -1,5 +1,6 @@
 /*
- * GreenVulcano Kit for Arduino
+ * GreenVulcano Kit for Microcontrollers
+ * Designed for AVR Chipsets (including Arduino)
  * Copyright (c) 2015 - GreenVulcano
  */
 
@@ -7,13 +8,8 @@
 #define GVLIB_H
 
 
-#ifdef USE_ARDUINO
-#	include <Arduino.h>
-
-#else
-#	include <stdlib.h>
-#	include <stdint.h>
-#endif
+#include <stdlib.h>
+#include <stdint.h>
 
 
 #define GV_DEVICES      "/devices"
