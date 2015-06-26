@@ -8,28 +8,46 @@
 
 #include <Client.h>
 #include <Ethernet.h>
-
+#include <EthernetClient.h>
 
 namespace gv {
+
+
+
+class GVLib_nonportable {
+public:
+	static inline size_t addToBuffer(const __FlashStringHelper *str, GVLib *lib) {
+		return lib->addToBuffer(reinterpret_cast<const char*>(str), true);
+	}
+
+	static void pubsub_callback(char *buf,uint8_t *iptr, unsigned int ival) {
+
+	}
+};
+
+inline size_t addToBuffer(const __FlashStringHelper *str, GVLib *lib) {
+	return GVLib_nonportable::addToBuffer(str, lib);
+}
+
+
 
 /**************************************************************************
  * 
  **************************************************************************/
-GVLib::GVLib() {
-	_index = 0;
-	_sensorCounter = 0;
-	_actuatorCounter = 0;
-	resetBuffer();
+GVLib::GVLib() :
+		_index (0),
+		_sensorCounter(0),
+		_devicePort(0),
+		_port(0),
+		_client(NULL)
+{
+
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-GVLib::GVLib(char* host, uint16_t port) {
-	_index = 0;
-	_sensorCounter = 0;
-	_actuatorCounter = 0;
-	resetBuffer();
+GVLib::GVLib(const char* host, uint16_t port) {
 	setServerHost(host);
 	setServerPort(port);
 }
@@ -37,11 +55,10 @@ GVLib::GVLib(char* host, uint16_t port) {
 /**************************************************************************
  * 
  **************************************************************************/
-GVLib::GVLib(byte server[], uint16_t port, EthernetClient ethClient) {
-	/*
+GVLib::GVLib(char server[], uint16_t port, const Client& ethClient) {
+
 	_index = 0;
 	_sensorCounter = 0;
-	_actuatorCounter = 0;
 	resetBuffer();
 	//setServerHost(host);
 	//setServerPort(port);
@@ -53,31 +70,31 @@ GVLib::GVLib(byte server[], uint16_t port, EthernetClient ethClient) {
 	EthernetClient ethClient2;
 	Ethernet.begin(mac, ip);
 
-	_client = PubSubClient(server, port, callback2, ethClient2);
+	_client = new PubSubClient(server, port, GVLib_nonportable::pubsub_callback, ethClient2);
 	Serial.println("PubSubClient CREATED");
 
 	bool c = false;
 	while(c == false) {
     	Serial.println("connecting ...");
     
-    	if(_client.connect("arduinoClient")) {
+    	if(_client->connect("arduinoClient")) {
     		c = true;
     		Serial.println("CONNECTED");
     	}
     }
 
-    _client.publish("/test", "OK FUNZIONA");
+    _client->publish("/test", "OK FUNZIONA");
 
-    _client.subscribe("gv/#");
+    _client->subscribe("gv/#");
 
     Serial.println("subscribed to 'gv/#'");
-    */	
+
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::setDevice(char* id, char* name, char* ip, uint16_t port) {
+void GVLib::setDevice(const char* id, const char* name, const char* ip, uint16_t port) {
 	setId(id);
 	setName(name);
 	setIp(ip);
@@ -87,44 +104,23 @@ void GVLib::setDevice(char* id, char* name, char* ip, uint16_t port) {
 /**************************************************************************
  * Set device id
  **************************************************************************/
-void GVLib::setId(char* id) {
+void GVLib::setId(const char* id) {
 	strcpy(_deviceId, id);
 }
 
 /**************************************************************************
- * Set device id
- **************************************************************************/
-void GVLib::setId(String id) {
-	id.toCharArray(_deviceId, DEVICE_NAME_SIZE);
-}
-
-/**************************************************************************
  * Set device name
- *************************************************************************
-void GVLib::setName(char* name) {
+ *************************************************************************/
+void GVLib::setName(const char* name) {
 	strcpy(_deviceName, name);
 }
-*/
 
-/**************************************************************************
- * Set device name
- **************************************************************************/
-void GVLib::setName(String name) {
-	name.toCharArray(_deviceName, DEVICE_NAME_SIZE);
-}
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::setIp(char* ip) {
+void GVLib::setIp(const char* ip) {
 	strcpy(_deviceIp, ip);
-}
-
-/**************************************************************************
- * 
- **************************************************************************/
-void GVLib::setIp(String ip) {
-	ip.toCharArray(_deviceIp, HOST_SIZE);
 }
 
 /**************************************************************************
@@ -144,76 +140,76 @@ void GVLib::setServerPort(uint16_t port) {
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::setServerHost(char* host) {
+void GVLib::setServerHost(const char* host) {
 	strcpy(_host, host);
 }
 
-/**************************************************************************
- * 
- **************************************************************************/
-void GVLib::setServerHost(String host) {
-	host.toCharArray(_host, HOST_SIZE);
-}
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::addToBuffer(char* value) {
-	uint16_t next = _index + strlen(value);
+size_t GVLib::addToBuffer(const char* value, bool progmem_) {
 
-	for(int ii=0; ii<strlen(value); ii++) {
-		_buffer[_index+ii] = value[ii];  
+	if (_index >= BUFFER_SIZE) {
+		return 0;
 	}
 
-	_index = _index + strlen(value);
-}
+	char* (*cpy)(char*, const char*) = progmem_ ? strcpy_P : strcpy;
+	char* (*ncpy)(char*, const char*, size_t) = progmem_ ? strncpy_P : strncpy;
+	size_t (*len)(const char*) = progmem_ ? strlen_P : strlen;
 
-/**************************************************************************
- * 
- **************************************************************************/
-void GVLib::addToBuffer(String value) {
-	for(int ii=0; ii<value.length(); ii++) {
-		_buffer[_index+ii] = value[ii];  
+	size_t length = len(value);
+	size_t next = _index + length;
+
+	if (next < BUFFER_SIZE) {
+		cpy(_buffer+_index, value);
+		_index = next;
+	} else {
+		length = BUFFER_SIZE - _index - 1;
+		ncpy(_buffer+_index, value, length);
+		_buffer[BUFFER_SIZE - 1] = '\0';
+		_index = BUFFER_SIZE;
 	}
-
-	_index = _index + value.length();
+	return length;
 }
+
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::addToBuffer(uint16_t value) {
+size_t GVLib::addToBuffer(uint16_t value) {
 	char number[10];
 	itoa(value, number, 10);  
-	addToBuffer(number);
+	return addToBuffer(number);
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::addToBuffer(uint32_t value) {
+size_t GVLib::addToBuffer(uint32_t value) {
 	char number[10];
 	itoa(value, number, 10);  
-	addToBuffer(number);
+	return addToBuffer(number);
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::addToBuffer(int value) {
+size_t GVLib::addToBuffer(int value) {
 	char number[10];
 	itoa(value, number, 10);  
-	addToBuffer(number);
+	return addToBuffer(number);
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-void GVLib::addToBuffer(float value) {
+size_t GVLib::addToBuffer(float value) {
 	char number[10];
 	dtostrf(value, 5, 2, number);  
-	addToBuffer(number);
+	return addToBuffer(number);
 }
+
 
 /**************************************************************************
  * 
@@ -233,33 +229,34 @@ void GVLib::resetBuffer() {
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::setClient(PubSubClient* client) {
+bool GVLib::setClient(PubSubClient* client) {
 	this->_client = client;
 }
 
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::sendConfig(Client& client) {
-	boolean result = false;
+bool GVLib::sendConfig(Client& client) {
+
+	bool result = false;
 
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":\""));
+	gv::addToBuffer(F("{\"id\":\""), this);
 	addToBuffer(_deviceId);
-	addToBuffer(F("\",\"nm\":\""));
+	gv::addToBuffer(F("\",\"nm\":\""), this);
 	addToBuffer(_deviceName);
-	addToBuffer(F("\",\"ip\":\""));
+	gv::addToBuffer(F("\",\"ip\":\""), this);
 	addToBuffer(_deviceIp);
-	addToBuffer(F("\",\"prt\":"));
+	gv::addToBuffer(F("\",\"prt\":"), this);
 	addToBuffer(_devicePort);
-	addToBuffer(F("}"));
+	gv::addToBuffer(F("}"), this);
 
 	int num = 1;
 	while(!result) {
 		result = send(client, GV_DEVICES);
 		#if DEBUG_MODE 
-			Serial.print("attempt: ");
+			Serial.print(F("attempt: "));
 			Serial.println(num++);
 		#endif
 		delay(1000);
@@ -273,7 +270,8 @@ boolean GVLib::sendConfig(Client& client) {
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::sendConfig() {
+bool GVLib::sendConfig() {
+
 	resetBuffer();
 
 	addToBuffer(getStatusOnline());
@@ -281,15 +279,15 @@ boolean GVLib::sendConfig() {
 
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":\""));
+	gv::addToBuffer(F("{\"id\":\""), this);
 	addToBuffer(_deviceId);
-	addToBuffer(F("\",\"nm\":\""));
+	gv::addToBuffer(F("\",\"nm\":\""), this);
 	addToBuffer(_deviceName);
-	addToBuffer(F("\",\"ip\":\""));
+	gv::addToBuffer(F("\",\"ip\":\""), this);
 	addToBuffer(_deviceIp);
-	addToBuffer(F("\",\"prt\":"));
+	gv::addToBuffer(F("\",\"prt\":"), this);
 	addToBuffer(_devicePort);
-	addToBuffer(F("}"));
+	gv::addToBuffer(F("}"), this);
 
 	_client->publish(GV_DEVICES, _buffer);
 
@@ -301,18 +299,18 @@ boolean GVLib::sendConfig() {
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::sendSensorConfig(Client& client, uint8_t id, char* name, char* type) {
-	boolean response = false;
+bool GVLib::sendSensorConfig(Client& client, uint8_t id, const char* name, const char* type) {
+	bool response = false;
 
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":"));
+	gv::addToBuffer(F("{\"id\":"), this);
 	addToBuffer(id);
-	addToBuffer(F(",\"nm\":\""));
+	gv::addToBuffer(F(",\"nm\":\""), this);
 	addToBuffer(name);	
-	addToBuffer(F("\",\"tp\":\""));
+	gv::addToBuffer(F("\",\"tp\":\""), this);
 	addToBuffer(type);
-	addToBuffer(F("\"}"));
+	gv::addToBuffer(F("\"}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -335,16 +333,16 @@ boolean GVLib::sendSensorConfig(Client& client, uint8_t id, char* name, char* ty
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::sendSensorConfig(uint8_t id, char* name, char* type) {
+bool GVLib::sendSensorConfig(uint8_t id, const char* name, const char* type) {
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":"));
+	gv::addToBuffer(F("{\"id\":"), this);
 	addToBuffer(id);
-	addToBuffer(F(",\"nm\":\""));
+	gv::addToBuffer(F(",\"nm\":\""), this);
 	addToBuffer(name);	
-	addToBuffer(F("\",\"tp\":\""));
+	gv::addToBuffer(F("\",\"tp\":\""), this);
 	addToBuffer(type);
-	addToBuffer(F("\"}"));
+	gv::addToBuffer(F("\"}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -362,20 +360,20 @@ boolean GVLib::sendSensorConfig(uint8_t id, char* name, char* type) {
 /**************************************************************************
  * 
  **************************************************************************/
-boolean GVLib::sendActuatorConfig(Client& client, uint8_t id, char* name, char* type, char* topic) {
-	boolean response = false;
+bool GVLib::sendActuatorConfig(Client& client, uint8_t id, const char* name, const char* type, const char* topic) {
+	bool response = false;
 
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":"));
+	gv::addToBuffer(F("{\"id\":"), this);
 	addToBuffer(id);
-	addToBuffer(F(",\"nm\":\""));
+	gv::addToBuffer(F(",\"nm\":\""), this);
 	addToBuffer(name);	
-	addToBuffer(F("\",\"tp\":\""));
+	gv::addToBuffer(F("\",\"tp\":\""), this);
 	addToBuffer(type);
-	addToBuffer(F("\",\"to\":\""));
+	gv::addToBuffer(F("\",\"to\":\""), this);
 	addToBuffer(topic);
-	addToBuffer(F("\"}"));
+	gv::addToBuffer(F("\"}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -400,18 +398,18 @@ boolean GVLib::sendActuatorConfig(Client& client, uint8_t id, char* name, char* 
 //******************************************************************************
 //
 //******************************************************************************
-boolean GVLib::sendActuatorConfig(uint8_t id, char* name, char* type, char* topic) {
+bool GVLib::sendActuatorConfig(uint8_t id, const char* name, const char* type, const char* topic) {
 	resetBuffer();
 
-	addToBuffer(F("{\"id\":"));
+	gv::addToBuffer(F("{\"id\":"), this);
 	addToBuffer(id);
-	addToBuffer(F(",\"nm\":\""));
+	gv::addToBuffer(F(",\"nm\":\""), this);
 	addToBuffer(name);	
-	addToBuffer(F("\",\"tp\":\""));
+	gv::addToBuffer(F("\",\"tp\":\""), this);
 	addToBuffer(type);
-	addToBuffer(F("\",\"to\":\""));
+	gv::addToBuffer(F("\",\"to\":\""), this);
 	addToBuffer(topic);
-	addToBuffer(F("\"}"));
+	gv::addToBuffer(F("\"}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -429,17 +427,17 @@ boolean GVLib::sendActuatorConfig(uint8_t id, char* name, char* type, char* topi
 //******************************************************************************
 //
 //******************************************************************************
-boolean GVLib::sendData(Client& client, uint8_t id, uint32_t value) {
-	boolean response = 0;
+bool GVLib::sendData(Client& client, uint8_t id, uint32_t value) {
+	bool response = 0;
 	char id_str[10];
 
 	resetBuffer();
 
 	sprintf(id_str,"%d", (int)id);
 
-	addToBuffer(F("{\"value\":"));
+	gv::addToBuffer(F("{\"value\":"), this);
 	addToBuffer(value);
-	addToBuffer(F("}"));
+	gv::addToBuffer(F("}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -466,18 +464,18 @@ boolean GVLib::sendData(Client& client, uint8_t id, uint32_t value) {
 //******************************************************************************
 //
 //******************************************************************************
-boolean GVLib::sendData(uint8_t id, uint32_t value) {
+bool GVLib::sendData(uint8_t id, uint32_t value) {
 	char id_str[10];
 
 	resetBuffer();
 
 	sprintf(id_str,"%d", (int)id);
 
-	addToBuffer(F("{\"id\":"));
+	gv::addToBuffer(F("{\"id\":"), this);
 	addToBuffer(id);
-	addToBuffer(F(",\"value\":"));
+	gv::addToBuffer(F(",\"value\":"), this);
 	addToBuffer(value);
-	addToBuffer(F("}"));
+	gv::addToBuffer(F("}"), this);
 
 	char srv[80];
 	strcpy(srv, GV_DEVICES);
@@ -497,11 +495,11 @@ boolean GVLib::sendData(uint8_t id, uint32_t value) {
 //******************************************************************************
 //
 //******************************************************************************
-boolean GVLib::send(Client& client, char* service) {
+bool GVLib::send(Client& client, const char* service) {
 	char outBuf[64];	
 	int connectLoop = 0;
-	boolean response = false;
-	boolean connected = true;
+	bool response = false;
+	bool connected = true;
 
 	if(!client.connected()) {
 		#if DEBUG_MODE 
@@ -538,27 +536,13 @@ boolean GVLib::send(Client& client, char* service) {
    		client.println(_buffer);  
 
 		// RESPONSE
-		response = (boolean)client.read();
+		response = (bool)client.read();
 	}
 
   	return response;
 }
 
-//******************************************************************************
-//
-//******************************************************************************
-int GVLib::addActuator(uint8_t id, char* topic, void (*callback)(char*)) {
-//	int current_index = _index_a;
-//	this->actuators_callback[current_index] = callback;
-//	_index_a++;
-	Serial.println("addActuator Called");
 
-	// TODO
-
-	//return current_index;
-
-	return 0;
-}
 
 //******************************************************************************
 //
