@@ -7,16 +7,17 @@
 #ifndef GVLIB_H
 #define GVLIB_H
 
-
 #include <stdlib.h>
 #include <stdint.h>
-
 
 #define GV_DEVICES      "/devices"
 #define GV_SENSORS      "/sensors"
 #define GV_ACTUATORS    "/actuators"
 #define GV_SENSOR_DATA  "/data"
 #define GV_STATUS       "/status"
+
+#define GV_PAYLOAD_STATUS_OFFLINE "{\"st\":false}"
+#define GV_PAYLOAD_STATUS_ONLINE "{\"st\":true}"
 
 #define BUFFER_SIZE 160
 
@@ -45,7 +46,6 @@
 /devices/<ID_DEVICE>/status
 */
 
-
 /*
  * On the Arduino Platform, the following two classes are provided by external
  * libraries, respectively to abstract Ethernet and MQTT access.
@@ -56,21 +56,21 @@
 class Client;
 class PubSubClient;
 
-
 namespace gv {
 
 class GVLib {
 	public:
 		GVLib();
 		GVLib(const char* host, uint16_t port);
-		GVLib(char server[], uint16_t port, const Client& ethClient);
+		GVLib(char server[], uint16_t port, Client& ethClient, char id[], char name[]);
 		void setId(const char* id);
 		void setName(const char* name);
 		void setIp(const char* ip);
 		void setPort(uint16_t port);
 		void setServerPort(uint16_t port);
 		void setServerHost(const char* host);
-		void setDevice(const char* id, const char* name, const char* host, uint16_t port);
+		void setDevice(const char* id, const char* name/*, const char* host, uint16_t port*/);
+		void regCallback(const char* topic, void* fn);
 
 		// LAST WILL
 		char* getStatusTopic();
@@ -91,6 +91,7 @@ class GVLib {
 		bool sendSensorConfig(uint8_t id, const char* name, const char* type);
 		bool sendActuatorConfig(uint8_t id, const char* name, const char* type, const char* topic);
 		bool sendData(uint8_t id, uint32_t value);
+		void loop();
 
 	private:
 		uint8_t _sensorCounter;
@@ -123,7 +124,6 @@ class GVLib {
 
 		friend class GVLib_nonportable;
 };
-
 
 /**
 	A class to hold callback delegates in GVLib.
