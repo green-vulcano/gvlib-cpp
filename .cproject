@@ -18,7 +18,7 @@
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objdump.lib.debug.1808674375" name="Generate Extended Listing (Source + generated Assembler)" superClass="de.innot.avreclipse.toolchain.options.toolchain.objdump.lib.debug"/>
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.lib.debug.770906868" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.lib.debug"/>
 							<targetPlatform id="de.innot.avreclipse.targetplatform.winavr.lib.debug.417570863" name="AVR Cross-Target" superClass="de.innot.avreclipse.targetplatform.winavr.lib.debug"/>
-							<builder buildPath="${workspace_loc:/gvlib-arduino}/Debug" id="de.innot.avreclipse.target.builder.winavr.lib.debug.1303502147" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.lib.debug"/>
+							<builder buildPath="${workspace_loc:/gvlib-cpp}/Debug" id="de.innot.avreclipse.target.builder.winavr.lib.debug.1303502147" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.lib.debug"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.lib.debug.1387224580" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.lib.debug">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.319948789" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level"/>
 								<option id="de.innot.avreclipse.asm.option.include.paths.381186143" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
@@ -73,7 +73,7 @@
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objdump.lib.release.2045396894" name="Generate Extended Listing (Source + generated Assembler)" superClass="de.innot.avreclipse.toolchain.options.toolchain.objdump.lib.release"/>
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.lib.release.1009011077" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.lib.release"/>
 							<targetPlatform id="de.innot.avreclipse.targetplatform.winavr.lib.release.749510919" name="AVR Cross-Target" superClass="de.innot.avreclipse.targetplatform.winavr.lib.release"/>
-							<builder buildPath="${workspace_loc:/gvlib-arduino}/Release" id="de.innot.avreclipse.target.builder.winavr.lib.release.1828714252" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.lib.release"/>
+							<builder buildPath="${workspace_loc:/gvlib-cpp}/Release" id="de.innot.avreclipse.target.builder.winavr.lib.release.1828714252" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.lib.release"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.lib.release.2057562101" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.lib.release">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.1234547197" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level" value="de.innot.avreclipse.assembler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.asm.option.include.paths.938398562" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
@@ -113,15 +113,15 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="gvlib-arduino.de.innot.avreclipse.project.winavr.staticlib.1391048260" name="AVR Cross Target Static Library" projectType="de.innot.avreclipse.project.winavr.staticlib"/>
+		<project id="gvlib-cpp.de.innot.avreclipse.project.winavr.staticlib.1391048260" name="AVR Cross Target Static Library" projectType="de.innot.avreclipse.project.winavr.staticlib"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/gvlib-arduino"/>
+			<resource resourceType="PROJECT" workspacePath="/gvlib-cpp"/>
 		</configuration>
 		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/gvlib-arduino"/>
+			<resource resourceType="PROJECT" workspacePath="/gvlib-cpp"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
