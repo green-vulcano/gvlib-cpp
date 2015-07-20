@@ -272,6 +272,4 @@ private:
 
 } // namespace gv
 
-#include "arduino/GVArduino.h"
-#include "arduino/GVTransports.h"
 #endif GVLIB_H
