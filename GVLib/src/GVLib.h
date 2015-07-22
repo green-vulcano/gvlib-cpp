@@ -51,13 +51,35 @@
 
 namespace gv {
 
-class GVLib;
 
+/**
+ * Class to support both IPv4 and IPv6 address families.
+ */
+class IPAddr {
+public:
+	enum Type {
+		IPv4, IPv6
+	};
+	IPAddr(const uint16_t data[]);
+	IPAddr(const uint8_t data[], Type type=IPv4);
+	const uint8_t* v4() const { return &(data_.ui8)[12]; }
+	const uint8_t* v6() const { return data_.ui8; }
+	Type type() const {
+		return ( memcmp(data_.ui8, IPv4_MASK, sizeof(IPv4_MASK)) != 0 ?
+				IPv6 : IPv4 );
+	}
+private:
+	union {
+		uint8_t  ui8[16];
+		uint16_t ui16[8];
+	} data_;
+	static const uint8_t IPv4_MASK[12];
+};
 
 class DeviceInfo {
 public:
-	DeviceInfo(const char* id, const char* name, const char* ip, uint16_t port) :
-		id_(id), name_(name), ip_(ip), port_(port) { }
+	DeviceInfo(const char* id, const char* name, const IPAddr& addr, uint16_t port) :
+		id_(id), name_(name), addr_(addr), port_(port) { }
 /* TODO: Low memory on extremely limited chips... only storing pointers for now
    {
 		strncpy(id_, id, DEVICE_ID_SIZE);
@@ -67,10 +89,10 @@ public:
 	}
 */
 
-	const char* id()   const { return id_;   }
-	const char* name() const { return name_; }
-	const char* ip()   const { return ip_;   }
-	uint16_t    port() const { return port_; }
+	const char*    id()   const { return id_;   }
+	const char*    name() const { return name_; }
+	const IPAddr&  ip()   const { return addr_; }
+	uint16_t       port() const { return port_; }
 
 private:
 /* TODO: Low memory on extremely limited chips... only storing pointers for now
@@ -79,10 +101,10 @@ private:
 	char ip_[HOST_SIZE];
 	uint16_t port_;
 */
-	const char *id_;
-	const char *name_;
-	const char *ip_;
-	uint16_t port_;
+	const char     *id_;
+	const char     *name_;
+	const IPAddr   addr_;
+	const uint16_t port_;
 };
 
 class Transport {
@@ -131,9 +153,9 @@ struct CallbackParam {
 typedef CallbackParam (*CallbackPointer)(CallbackParam);
 
 
-class GVLib {
+class GVComm {
 	public:
-		GVLib(const DeviceInfo& deviceInfo, Transport& transport);
+		GVComm(const DeviceInfo& deviceInfo, Transport& transport);
 
 		bool addCallback(const char* topic, CallbackPointer fn);
 
@@ -236,10 +258,10 @@ class ServerAndPortTransport_base : public virtual Transport {
 protected:
 	//static const int MAX_SERVER_LEN = 64;
 
-	const char* server() const { return server_; }
-	uint16_t    port()   const { return port_; }
+	const IPAddr&  server() const { return server_; }
+	uint16_t       port()   const { return port_; }
 
-	ServerAndPortTransport_base(const DeviceInfo& info, const char* server,
+	ServerAndPortTransport_base(const DeviceInfo& info, const IPAddr& server,
 			uint16_t port) : Transport(info), port_(port)
 /* TODO: Low memory on extremely limited chips... only storing pointers for now
 	{
@@ -249,14 +271,14 @@ protected:
 	, server_(server) { }
 private:
 	//char     server_[MAX_SERVER_LEN];
-	const char* server_;
-	uint16_t port_;
+	const IPAddr& server_;
+	uint16_t      port_;
 };
 
 
 class MqttTransport_base : public ServerAndPortTransport_base {
 protected:
-	MqttTransport_base(const DeviceInfo& info, const char* server,
+	MqttTransport_base(const DeviceInfo& info, const IPAddr& server,
 			uint16_t port) : Transport(info), ServerAndPortTransport_base(info, server, port)
 	{
 		sprintf(statusTopic_, "%s/%s/status", GV_DEVICES, info.id());

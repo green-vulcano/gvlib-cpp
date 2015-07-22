@@ -75,7 +75,7 @@ bool gv::arduino::ArduinoTransport::sendData(uint8_t id, uint32_t value) {
 bool gv::arduino::RestTransport::connect() {
 	int res;
 	Serial.print(F("RestTransport: connecting... "));
-	res = ethClient_.connect(server(), port());
+	res = ethClient_.connect(server().v4(), port());
 	if (res < 0) {
 		Serial.println(F("FAILED!"));
 		return false;
@@ -91,7 +91,9 @@ bool gv::arduino::RestTransport::send(const char* service, size_t slen, const ch
 	// HTTP POST
 	sprintf_P(outBuf, PSTR("POST %s HTTP/1.1"), service);
 	ethClient_.println(outBuf);
-	sprintf_P(outBuf, PSTR("Host: %s"), server());
+	// TODO: this is IPv4 only for now - please upgrade!
+	const uint8_t* ip = server().v4();
+	sprintf_P(outBuf, PSTR("Host: %d.%d.%d.%d"), ip[0], ip[1], ip[2], ip[3]);
 	ethClient_.println(outBuf);
 	ethClient_.println(F("Connection: close\r\nContent-Type: application/json; charset=utf-8"));
 	sprintf_P(outBuf,PSTR("Content-Length: %u\r\n"),strlen(payload));
@@ -117,7 +119,12 @@ bool gv::arduino::RestTransport::sendConfig() {
 	b.add(F("\",\"nm\":\""));
 	b.add(deviceInfo_.name());
 	b.add(F("\",\"ip\":\""));
-	b.add(deviceInfo_.ip());
+	const uint8_t* addr = deviceInfo_.ip().v4();
+	char buf[4];
+	for (int i=0; i<4; i++) {
+		itoa(addr[i], buf, 10);
+		b.add(buf);
+	}
 	b.add(F("\",\"prt\":"));
 	b.add((int)deviceInfo_.port());
 	b.add(F("}"));

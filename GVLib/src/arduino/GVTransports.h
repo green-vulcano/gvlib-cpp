@@ -33,7 +33,7 @@ public:
 
 class RestTransport : public ServerAndPortTransport_base, public ArduinoTransport {
 public:
-	RestTransport(const DeviceInfo& info, const char* server,uint16_t port,
+	RestTransport(const DeviceInfo& info, const IPAddr& server,uint16_t port,
 			Client& ethClient) :
 				Transport(info),
 				ServerAndPortTransport_base(info, server, port),
@@ -66,11 +66,12 @@ private:
 class MqttTransport : public MqttTransport_base, public ArduinoTransport {
 public:
 	MqttTransport(const DeviceInfo& info,
-			const char* server, uint16_t port, Client& ethClient) :
+			const IPAddr& server, uint16_t port, Client& ethClient) :
 				Transport(info),
 				MqttTransport_base(info, server, port),
 				ArduinoTransport(info),
-				mqttClient_(const_cast<char*>(server), port,
+				// TODO: IPv4-only for now, please upgrade!
+				mqttClient_(const_cast<uint8_t*>(server.v4()), port,
 							pubsub_callback, ethClient) { }
 
 	bool send(const char* service, size_t slen,
@@ -91,7 +92,7 @@ private:
 
 	static void pubsub_callback(char *topic, uint8_t *payload,
 			unsigned int psize) {
-		gv::GVLib::callback(topic, { payload, psize });
+		gv::GVComm::callback(topic, { payload, psize });
 	}
 
 };

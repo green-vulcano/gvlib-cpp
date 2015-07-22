@@ -4,20 +4,40 @@
  */
 
 #include "GVLib.h"
+#include "portable_endian.h"
+
 
 #include <Client.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
 
+
+
 namespace gv {
 
+	const uint8_t IPAddr::IPv4_MASK[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
+
+	IPAddr::IPAddr(const uint16_t data[]) {
+		const uint16_t *p=data;
+		uint16_t *d = data_.ui16;
+		for (int i=0; i < 8; i++) {
+			*(d++) = htobe16(*(p++));
+		}
+	}
+
+	IPAddr::IPAddr(const uint8_t data[], Type type) {
+		if (type == IPv4) {
+			memcpy(data_.ui8, IPv4_MASK, sizeof(IPv4_MASK));
+		}
+		memcpy(&(data_.ui8)[12], data, 4);
+	}
 
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
 
 
-	GVLib::GVLib(const DeviceInfo& deviceInfo, Transport& transport) :
+	GVComm::GVComm(const DeviceInfo& deviceInfo, Transport& transport) :
 		_sensorCounter(0),
 		transport_(transport),
 		deviceInfo_(deviceInfo)
@@ -28,7 +48,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	bool GVLib::addCallback(const char* topic, CallbackPointer fn) {
+	bool GVComm::addCallback(const char* topic, CallbackPointer fn) {
 		if (transport_.subscribe(topic)) {
 			Callback::add(topic, fn);
 			return true;
@@ -37,7 +57,7 @@ namespace gv {
 	}
 
 
-	bool GVLib::poll() {
+	bool GVComm::poll() {
 		return transport_.poll();
 	}
 
@@ -45,12 +65,12 @@ namespace gv {
 	 * Class Callback --- definition 
 	 */
 
-	GVLib::Callback* GVLib::Callback::head_ = NULL;
+	GVComm::Callback* GVComm::Callback::head_ = NULL;
 
 	//******************************************************************************
 	//
 	//******************************************************************************
-	GVLib::Callback::Callback(const char* topic, CallbackPointer fn) :
+	GVComm::Callback::Callback(const char* topic, CallbackPointer fn) :
 			next_(NULL), topic_(topic), function_(fn)
 	{
 	}
@@ -58,7 +78,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	GVLib::Callback* GVLib::Callback::add(const char* topic, CallbackPointer fn) {
+	GVComm::Callback* GVComm::Callback::add(const char* topic, CallbackPointer fn) {
 		Callback* cb = new Callback(topic, fn);
 
 		if (head_) {
@@ -73,7 +93,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	int GVLib::Callback::remove(const char* topic, CallbackPointer fn) {
+	int GVComm::Callback::remove(const char* topic, CallbackPointer fn) {
 		Callback *ptr = head_, *prev;
 		int removed = 0;
 		while (find_(topic, fn, &ptr, &prev)) {
@@ -93,7 +113,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	CallbackParam GVLib::Callback::call(const char* topic, CallbackParam param) {
+	CallbackParam GVComm::Callback::call(const char* topic, CallbackParam param) {
 		Callback *ptr = head_, *prev;
 		while (find_(topic, NULL, &ptr, &prev)) {
 			if (ptr->function_) param = ptr->function_(param);
@@ -105,7 +125,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	bool GVLib::Callback::find_(const char* topic, CallbackPointer fn,
+	bool GVComm::Callback::find_(const char* topic, CallbackPointer fn,
 								Callback** ptr, Callback** prev) {
 		Callback* p = *ptr;
 		*prev = p;
@@ -126,7 +146,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	void GVLib::Callback::dispose() {
+	void GVComm::Callback::dispose() {
 		Callback  *bye, *p = head_;
 		while (p) {
 			bye = p;
