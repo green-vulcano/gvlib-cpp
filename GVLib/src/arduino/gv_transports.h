@@ -1,5 +1,5 @@
 /*
- * arduino/GVTransports.h
+ * arduino/gv_transports.h
  *
  * Transport definitions for the Arduino Platform
  *

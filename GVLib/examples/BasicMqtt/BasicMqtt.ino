@@ -1,6 +1,6 @@
 #include <gvlib.h>
-#include <arduino/GVArduino.h>
-#include <arduino/GVTransports.h>
+#include <arduino/gv_arduino.h>
+#include <arduino/gv_transports.h>
 
 #include <SPI.h>
 #include <Ethernet.h>
