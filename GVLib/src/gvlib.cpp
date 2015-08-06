@@ -3,7 +3,7 @@
  * Copyright (c) 2015 - GreenVulcano
  */
 
-#include "GVLib.h"
+#include "gvlib.h"
 #include "portable_endian.h"
 
 

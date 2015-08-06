@@ -8,7 +8,7 @@
 #ifndef GVARDUINO_H_
 #define GVARDUINO_H_
 
-#include "GVLib.h"
+#include "gvlib.h"
 #include <Arduino.h>
 
 namespace gv {

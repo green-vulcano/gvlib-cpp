@@ -10,7 +10,7 @@
 #ifndef GVTRANSPORTS_H_
 #define GVTRANSPORTS_H_
 
-#include "GVLib.h"
+#include "gvlib.h"
 #include "Client.h"
 #include "PubSubClient.h"
 
