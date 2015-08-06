@@ -1,6 +1,6 @@
 #include <gvlib.h>
-#include <arduino/gv_arduino.h>
-#include <arduino/gv_transports.h>
+#include <avr/arduino/gv_arduino.h>
+#include <avr/arduino/gv_transports.h>
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -43,7 +43,7 @@ IPAddr myIp (myIp_);
 IPAddr serverIp (serverIp_);
 DeviceInfo deviceInfo(device_id, device_name, myIp, port);
 EthernetClient ethClient;
-arduino::MqttTransport mqttTransport(deviceInfo, serverIp, port, ethClient);
+avr::arduino::MqttTransport mqttTransport(deviceInfo, serverIp, port, ethClient);
 GVComm gvComm(deviceInfo, mqttTransport);
 
 
