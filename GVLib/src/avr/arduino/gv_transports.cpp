@@ -12,7 +12,7 @@
 #include "Client.h"
 
 
-bool gv::arduino::ArduinoTransport::sendSensorConfig(
+bool gv::avr::arduino::ArduinoTransport::sendSensorConfig(
 		uint8_t id, const char* name, const char* type) {
 
 	Buffer b;
@@ -31,7 +31,7 @@ bool gv::arduino::ArduinoTransport::sendSensorConfig(
 	return true;
 }
 
-bool gv::arduino::ArduinoTransport::sendActuatorConfig(
+bool gv::avr::arduino::ArduinoTransport::sendActuatorConfig(
 		uint8_t id, const char* name, const char* type, const char* topic) {
 
 	Buffer b;
@@ -52,7 +52,7 @@ bool gv::arduino::ArduinoTransport::sendActuatorConfig(
 	return true;
 
 }
-bool gv::arduino::ArduinoTransport::sendData(uint8_t id, uint32_t value) {
+bool gv::avr::arduino::ArduinoTransport::sendData(uint8_t id, uint32_t value) {
 	Buffer b;
 
 	b.add(F("{\"id\":"));
@@ -72,7 +72,7 @@ bool gv::arduino::ArduinoTransport::sendData(uint8_t id, uint32_t value) {
 
 
 
-bool gv::arduino::RestTransport::connect() {
+bool gv::avr::arduino::RestTransport::connect() {
 	int res;
 	Serial.print(F("RestTransport: connecting... "));
 	res = ethClient_.connect(server().v4(), port());
@@ -84,7 +84,7 @@ bool gv::arduino::RestTransport::connect() {
 	return true;
 }
 
-bool gv::arduino::RestTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
+bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
 	ensureConnected();
 	char outBuf[64];
 
@@ -111,7 +111,7 @@ bool gv::arduino::RestTransport::send(const char* service, size_t slen, const ch
 	return true;
 }
 
-bool gv::arduino::RestTransport::sendConfig() {
+bool gv::avr::arduino::RestTransport::sendConfig() {
 
 	Buffer b;
 	b.add(F("{\"id\":\""));
@@ -146,7 +146,7 @@ bool gv::arduino::RestTransport::sendConfig() {
 }
 
 
-bool gv::arduino::MqttTransport::connect() {
+bool gv::avr::arduino::MqttTransport::connect() {
 	bool res;
 	Serial.print(F("MqttTransport: connecting... "));
 
@@ -161,11 +161,11 @@ bool gv::arduino::MqttTransport::connect() {
 	return res;
 }
 
-bool gv::arduino::MqttTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
+bool gv::avr::arduino::MqttTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
 	return mqttClient_.publish((char *) service, (uint8_t *) payload, plen);
 }
 
-bool gv::arduino::MqttTransport::sendConfig() {
+bool gv::avr::arduino::MqttTransport::sendConfig() {
 	Buffer b;
 
 	b.add(F(GV_PAYLOAD_STATUS_ONLINE));

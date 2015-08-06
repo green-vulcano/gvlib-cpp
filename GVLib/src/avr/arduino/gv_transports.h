@@ -10,12 +10,12 @@
 #ifndef GVTRANSPORTS_H_
 #define GVTRANSPORTS_H_
 
-#include "gvlib.h"
+#include "../../gvlib.h"
 #include "Client.h"
 #include "PubSubClient.h"
 
 namespace gv {
-
+namespace avr {
 namespace arduino {
 
 class ArduinoTransport : public virtual Transport {
@@ -100,7 +100,7 @@ private:
 }
 
 }
-
+}
 
 
 #endif /* GVTRANSPORTS_H_ */

@@ -1,18 +1,19 @@
 /*
- * GVArduino.h
+ * gv_avr.h
  *
  *  Created on: Jul 16, 2015
  *      Author: Domenico Barra <eisenach@gmail.com>
  */
 
-#ifndef GVARDUINO_H_
-#define GVARDUINO_H_
+#ifndef GV_AVR_H_
+#define GV_AVR_H_
 
 #include "gvlib.h"
-#include <Arduino.h>
+#include <avr/pgmspace.h>
+
 
 namespace gv {
-namespace arduino {
+namespace avr {
 
 class Buffer{
 	char buffer_[BUFFER_SIZE];
@@ -67,10 +68,6 @@ public:
 		return add(number);
 	}
 
-	inline size_t add(const __FlashStringHelper *str) {
-		return add(reinterpret_cast<const char*>(str), true);
-	}
-
 };
 
 }
@@ -78,4 +75,4 @@ public:
 
 
 
-#endif /* GVARDUINO_H_ */
+#endif /* GV_AVR_H_ */

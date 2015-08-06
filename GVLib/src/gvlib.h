@@ -163,10 +163,10 @@ public:
 	Protocol(const DeviceInfo& info, Transport& transport) :
 		transport_(transport), deviceInfo_(info) { }
 
-	virtual bool sendConfig() = 0;
+	virtual bool sendDeviceInfo() = 0;
 	virtual bool sendSensorConfig(uint8_t id, const char* name, const char* type) = 0;
 	virtual bool sendActuatorConfig(uint8_t id, const char* name, const char* type, const char* topic) = 0;
-	virtual bool sendData(uint8_t id, uint32_t value) = 0;
+	virtual bool sendData(uint8_t id, const char* value) = 0;
 
 	virtual ~Protocol() { }
 protected:
