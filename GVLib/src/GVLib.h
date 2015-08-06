@@ -1,7 +1,27 @@
 /*
- * GreenVulcano Kit for Microcontrollers
- * Designed for AVR Chipsets (including Arduino)
- * Copyright (c) 2015 - GreenVulcano
+ * Copyright (c) 2015, GreenVulcano Open Source Project. All rights reserved.
+ *
+ * This file is part of the GreenVulcano Communication Library for IoT.
+ *
+ * This is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * GreenVulcano Communication Library for IoT - C++ for Micro-Controllers
+ * This version of the library is designed for limited-resource devices, and
+ * is especially targeted to AVR micro-controllers.
+ * Yes, it runs on Arduino, too.
  */
 
 #ifndef GVLIB_H
@@ -107,6 +127,7 @@ private:
 	const uint16_t port_;
 };
 
+
 class Transport {
 public:
 	const DeviceInfo& deviceInfo() { return deviceInfo_; }
@@ -135,6 +156,24 @@ private:
 	Transport(const Transport&);
 	Transport& operator=(const Transport&);
 };
+
+
+class Protocol {
+public:
+	Protocol(const DeviceInfo& info, Transport& transport) :
+		transport_(transport), deviceInfo_(info) { }
+
+	virtual bool sendConfig() = 0;
+	virtual bool sendSensorConfig(uint8_t id, const char* name, const char* type) = 0;
+	virtual bool sendActuatorConfig(uint8_t id, const char* name, const char* type, const char* topic) = 0;
+	virtual bool sendData(uint8_t id, uint32_t value) = 0;
+
+	virtual ~Protocol() { }
+protected:
+	Transport&         transport_;
+	const DeviceInfo&  deviceInfo_;
+};
+
 
 /**
  * Callback parameter type
