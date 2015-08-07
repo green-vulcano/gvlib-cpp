@@ -119,12 +119,7 @@ bool gv::avr::arduino::RestTransport::sendConfig() {
 	b.add(F("\",\"nm\":\""));
 	b.add(deviceInfo_.name());
 	b.add(F("\",\"ip\":\""));
-	const uint8_t* addr = deviceInfo_.ip().v4();
-	char buf[4];
-	for (int i=0; i<4; i++) {
-		itoa(addr[i], buf, 10);
-		b.add(buf);
-	}
+	b.add(deviceInfo_.ip());
 	b.add(F("\",\"prt\":"));
 	b.add((int)deviceInfo_.port());
 	b.add(F("}"));

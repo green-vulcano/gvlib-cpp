@@ -68,6 +68,21 @@ public:
 		return add(number);
 	}
 
+	size_t add(const IPAddr& addr) {
+		int added = 0;
+		if (addr.type() == IPAddr::IPv4) {
+			const uint8_t* v4 = addr.v4();
+			for (int i=0; i<3; i++) {
+				added += add(v4[i]);
+				added += add(".");
+			}
+			added += add(v4[3]);
+		} else {
+			// TODO: IMPLEMENT IPV6 conversion to string
+		}
+		return added;
+	}
+
 };
 
 }

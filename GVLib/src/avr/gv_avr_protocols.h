@@ -25,7 +25,7 @@
  */
 
 #ifndef GV_AVR_PROTOCOLS_H_
-#define GV_PROTOCOLS_H_
+#define GV_AVR_PROTOCOLS_H_
 
 #include <stdio.h>
 #include <avr/pgmspace.h>
@@ -42,10 +42,19 @@ public:
 		gv::protocols::Protocol_IOT_v1(info, transport) { }
 
 	bool sendDeviceInfo() override {
-		char buf[BUFFER_SIZE];
-		sprintf_P(buf,
-				PSTR("{\"id\": \"%s\", \"nm\": \"%s\", \"ip\": \"%s\", \"prt\": \"%d\"}"),
-				deviceInfo_.id(), "TODO", "TODO", 5 ); // TODO: CONTINUE FROM HERE
+		Buffer b;
+		b.add(PSTR("{\"id\": \""), true);
+		b.add(deviceInfo_.id());
+		b.add(PSTR("\", \"nm\": \""), true);
+		b.add(deviceInfo_.name());
+		b.add(PSTR("\", \"ip\": \""), true);
+		b.add(deviceInfo_.ip());
+		b.add(PSTR("\": \"%s\", \"prt\": \""), true);
+		b.add((int)deviceInfo_.port());
+		b.add(PSTR("\"}"), true);
+		const char* payload = b.get();
+		int plen = b.len();
+		return transport_.send(GV_DEVICES, strlen(GV_DEVICES), payload, plen);
 	}
 
 	bool sendSensorConfig(uint8_t id, const char* name, const char* type) override;
