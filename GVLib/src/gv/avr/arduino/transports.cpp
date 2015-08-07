@@ -6,8 +6,9 @@
  */
 
 
-#include "gv_transports.h"
-#include "gv_arduino.h"
+#include "gv/avr/arduino/transports.h"
+#include "gv/avr/arduino/gv.h"
+
 #include "PubSubClient.h"
 #include "Client.h"
 

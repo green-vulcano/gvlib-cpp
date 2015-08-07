@@ -7,10 +7,11 @@
  *      Author: Domenico Barra <eisenach@gmail.com>
  */
 
-#ifndef GVTRANSPORTS_H_
-#define GVTRANSPORTS_H_
+#ifndef GV_AVR_ARDUINO_TRANSPORTS_H_
+#define GV_AVR_ARDUINO_TRANSPORTS_H_
 
-#include "../../gvlib.h"
+#include "gv/gv.h"
+
 #include "Client.h"
 #include "PubSubClient.h"
 
@@ -103,4 +104,4 @@ private:
 }
 
 
-#endif /* GVTRANSPORTS_H_ */
+#endif /* GV_AVR_ARDUINO_TRANSPORTS_H_ */

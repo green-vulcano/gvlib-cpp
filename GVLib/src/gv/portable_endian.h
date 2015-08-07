@@ -1,8 +1,36 @@
-// "License": Public Domain
-// I, Mathias Panzenböck, place this file hereby into the public domain. Use it at your own risk for whatever you like.
-// In case there are jurisdictions that don't support putting things in the public domain you can also consider it to
-// be "dual licensed" under the BSD, MIT and Apache licenses, if you want to. This code is trivial anyway. Consider it
-// an example on how to get the endian conversion functions on different platforms.
+/*
+ * Copyright (c) 2015, GreenVulcano Open Source Project. All rights reserved.
+ *
+ * This file is part of the GreenVulcano Communication Library for IoT.
+ *
+ * This is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * GreenVulcano Communication Library for IoT - C++ for Micro-Controllers
+ * gv/portable_endian.h
+ *
+ * Credit to : Mathias Panzenböck, who put the original implementation of this
+ *             file into public domain.
+ *    Edited : Domenico Barra <eisenach@gmail.com>
+ *             Added GCC-specific fallback with manual implementation in order
+ *             to support endianness on AVR and other architectures not
+ *             providing native endianness support.
+ */
+
+//  
+
 
 #ifndef PORTABLE_ENDIAN_H__
 #define PORTABLE_ENDIAN_H__

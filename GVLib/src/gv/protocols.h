@@ -18,16 +18,19 @@
  */
 
 /*
- * gv_protocols.h
+ * GreenVulcano Communication Library for IoT - C++ for Micro-Controllers
+ * gv/protocols.h
  *
- *  Created on: Aug 6, 2015
- *      Author: Domenico Barra <eisenach@gmail.com>
+ * Created on: Aug 6, 2015
+ *     Author: Domenico Barra <eisenach@gmail.com>
+ * 
+ * This header file contains the definition of generic GreenVulcano protocols.
  */
 
 #ifndef GV_PROTOCOLS_H_
 #define GV_PROTOCOLS_H_
 
-#include "gvlib.h"
+#include "gv/gv.h"
 
 namespace gv {
 

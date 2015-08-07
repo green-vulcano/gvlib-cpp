@@ -27,9 +27,10 @@
 #ifndef GV_AVR_PROTOCOLS_H_
 #define GV_AVR_PROTOCOLS_H_
 
+#include "gv/protocols.h"
+
 #include <stdio.h>
 #include <avr/pgmspace.h>
-#include "../gv_protocols.h"
 
 namespace gv {
 

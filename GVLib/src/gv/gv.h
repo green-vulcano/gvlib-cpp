@@ -19,13 +19,20 @@
 
 /*
  * GreenVulcano Communication Library for IoT - C++ for Micro-Controllers
+ * gv/gv.h
+ *
+ * Created on: Jun 12, 2015
+ *     Author: Mauro Pagano <m.pagano@greenvulcano.com>
+ *             Domenico Barra <eisenach@gmail.com>
+ * 
+ * Main header of the library.
  * This version of the library is designed for limited-resource devices, and
  * is especially targeted to AVR micro-controllers.
  * Yes, it runs on Arduino, too.
  */
 
-#ifndef GVLIB_H
-#define GVLIB_H
+#ifndef GV_GV_H
+#define GV_GV_H
 
 #include <stdio.h>
 #include <string.h>
@@ -333,4 +340,4 @@ private:
 
 } // namespace gv
 
-#endif GVLIB_H
+#endif GV_GV_H

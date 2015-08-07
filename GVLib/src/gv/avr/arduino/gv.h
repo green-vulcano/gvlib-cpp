@@ -5,11 +5,11 @@
  *      Author: Domenico Barra <eisenach@gmail.com>
  */
 
-#ifndef GV_ARDUINO_H_
-#define GV_ARDUINO_H_
+#ifndef GV_AVR_ARDUINO_GV_H_
+#define GV_AVR_ARDUINO_GV_H_
 
-#include "gvlib.h"
-#include "../gv_avr.h"
+#include "gv/gv.h"
+#include "gv/avr/gv.h"
 
 #include <Arduino.h>
 
@@ -31,4 +31,4 @@ public:
 
 
 
-#endif /* GV_ARDUINO_H_ */
+#endif /* GV_AVR_ARDUINO_GV_H_ */
