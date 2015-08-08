@@ -28,7 +28,7 @@
 #include "gv/avr/protocols.h"
 #include "gv/avr/gv.h"
 
-#include <stdio.h>
+
 #include <avr/pgmspace.h>
 
 namespace gv { namespace avr {
@@ -93,7 +93,7 @@ bool Protocol_IOT_v1::sendData(uint8_t id, const char* value) {
 	b.add(PSTR("{\"id\":"), true);
 	b.add(id);
 	b.add(PSTR(",\"value\":"), true);
-	b.add((int)value);
+	b.add(value);
 	b.add(PSTR("}"), true);
 
 	char srv[80];
