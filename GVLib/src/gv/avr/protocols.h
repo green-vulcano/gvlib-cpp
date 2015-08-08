@@ -46,6 +46,8 @@ public:
 
 };
 
+typedef Protocol_IOT_v1 DefaultProtocol;
+
 
 }
 

@@ -56,10 +56,10 @@ namespace gv {
 	 **************************************************************************/
 
 
-	GVComm::GVComm(const DeviceInfo& deviceInfo, Transport& transport) :
-		_sensorCounter(0),
+	GVComm::GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol) :
+		deviceInfo_(deviceInfo),
 		transport_(transport),
-		deviceInfo_(deviceInfo)
+		protocol_ (protocol)
 	{
 	}
 
@@ -68,11 +68,7 @@ namespace gv {
 	//
 	//******************************************************************************
 	bool GVComm::addCallback(const char* topic, CallbackPointer fn) {
-		if (transport_.subscribe(topic)) {
-			Callback::add(topic, fn);
-			return true;
-		}
-		return false;
+		return transport_.subscribe(topic, fn);
 	}
 
 
@@ -84,12 +80,12 @@ namespace gv {
 	 * Class Callback --- definition 
 	 */
 
-	GVComm::Callback* GVComm::Callback::head_ = NULL;
+	Callback* Callback::head_ = NULL;
 
 	//******************************************************************************
 	//
 	//******************************************************************************
-	GVComm::Callback::Callback(const char* topic, CallbackPointer fn) :
+	Callback::Callback(const char* topic, CallbackPointer fn) :
 			next_(NULL), topic_(topic), function_(fn)
 	{
 	}
@@ -97,7 +93,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	GVComm::Callback* GVComm::Callback::add(const char* topic, CallbackPointer fn) {
+	Callback* Callback::add(const char* topic, CallbackPointer fn) {
 		Callback* cb = new Callback(topic, fn);
 
 		if (head_) {
@@ -112,7 +108,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	int GVComm::Callback::remove(const char* topic, CallbackPointer fn) {
+	int Callback::remove(const char* topic, CallbackPointer fn) {
 		Callback *ptr = head_, *prev;
 		int removed = 0;
 		while (find_(topic, fn, &ptr, &prev)) {
@@ -132,7 +128,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	CallbackParam GVComm::Callback::call(const char* topic, CallbackParam param) {
+	CallbackParam Callback::call(const char* topic, CallbackParam param) {
 		Callback *ptr = head_, *prev;
 		while (find_(topic, NULL, &ptr, &prev)) {
 			if (ptr->function_) param = ptr->function_(param);
@@ -144,7 +140,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	bool GVComm::Callback::find_(const char* topic, CallbackPointer fn,
+	bool Callback::find_(const char* topic, CallbackPointer fn,
 								Callback** ptr, Callback** prev) {
 		Callback* p = *ptr;
 		*prev = p;
@@ -165,7 +161,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	void GVComm::Callback::dispose() {
+	void Callback::dispose() {
 		Callback  *bye, *p = head_;
 		while (p) {
 			bye = p;

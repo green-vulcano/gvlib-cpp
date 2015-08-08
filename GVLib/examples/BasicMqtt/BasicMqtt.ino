@@ -1,6 +1,4 @@
-#include <gvlib.h>
-#include <avr/arduino/gv_arduino.h>
-#include <avr/arduino/gv_transports.h>
+#include <gvlib_arduino.h>
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -43,8 +41,10 @@ IPAddr myIp (myIp_);
 IPAddr serverIp (serverIp_);
 DeviceInfo deviceInfo(device_id, device_name, myIp, port);
 EthernetClient ethClient;
+
 avr::arduino::MqttTransport mqttTransport(deviceInfo, serverIp, port, ethClient);
-GVComm gvComm(deviceInfo, mqttTransport);
+avr::DefaultProtocol protocol(deviceInfo, mqttTransport);
+GVComm gvComm(deviceInfo, mqttTransport, protocol);
 
 
 /* Arduino standard setup function */
@@ -59,8 +59,8 @@ void setup() {
   /* * * * * * * * * * * * * * *
      Then you declare yourself
    * * * * * * * * * * * * * * */
-  Serial.println(F("Sending Device Configuration: "));
-  gvComm.sendConfig();
+  Serial.println(F("Sending Device Information: "));
+  gvComm.sendDeviceInfo();
 
   /* * * * * * * * * * * * * * * * * *
      Then you declare your sensors...
