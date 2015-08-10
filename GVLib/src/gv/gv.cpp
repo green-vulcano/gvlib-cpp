@@ -71,6 +71,18 @@ namespace gv {
 		return transport_.subscribe(topic, fn);
 	}
 
+	/**************************************************************************
+	 * 
+	 **************************************************************************/
+	bool GVComm::sendActuatorConfig(uint8_t id, const char* name,
+	                 const char* type, const char* topic, CallbackPointer fn)
+	{
+		bool result = protocol_.sendActuatorConfig(id, name, type, topic);
+		if (result && fn) {
+			result = addCallback(topic, fn);
+		}
+		return result;
+	}
 
 	bool GVComm::poll() {
 		return transport_.poll();

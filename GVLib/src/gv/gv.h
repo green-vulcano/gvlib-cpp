@@ -285,8 +285,8 @@ class GVComm {
 		bool sendDeviceInfo() { return protocol_.sendDeviceInfo(); }
 		bool sendSensorConfig(uint8_t id, const char* name, const char* type)
 		{ return protocol_.sendSensorConfig(id, name, type); }
-		bool sendActuatorConfig(uint8_t id, const char* name, const char* type, const char* topic)
-		{ return protocol_.sendActuatorConfig(id, name, type, topic); }
+		bool sendActuatorConfig(uint8_t id, const char* name, const char* type,
+		                        const char* topic, CallbackPointer fn=0);
 		bool sendData(uint8_t id, const char* value)
 		{ return protocol_.sendData(id, value); }
 
