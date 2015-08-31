@@ -85,6 +85,8 @@ private:
 
 	static void pubsub_callback(char *topic, uint8_t *payload,
 			unsigned int psize) {
+		payload[psize] = '\0'; // the library doesn't to it for us,
+		                       // so this is needed for safety.
 		gv::GVComm::callback(topic, { payload, psize });
 	}
 
