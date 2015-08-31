@@ -59,9 +59,9 @@ bool gv::avr::arduino::MqttTransport::connect() {
 	Serial.print(F("MqttTransport: connecting... "));
 
 	char willTopic[TOPIC_NAME_SIZE];
-	sprintf_P(willTopic, "%s/%s/status", GV_DEVICES, deviceInfo_.id());
+	sprintf_P(willTopic, PSTR("%s/%s/status"), GV_DEVICES, deviceInfo_.id());
 	// AARGH!!! have to cast out of const because of mqtt lib!!
-	mqttClient_.connect(
+	res = mqttClient_.connect(
 			const_cast<char*>(deviceInfo_.id()),
 			willTopic, 1, 0, // QOS=1, RETAIN=0
 			const_cast<char*>(PSTR(GV_PAYLOAD_STATUS_OFFLINE)));
@@ -71,6 +71,9 @@ bool gv::avr::arduino::MqttTransport::connect() {
 }
 
 bool gv::avr::arduino::MqttTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
+	if (!ensureConnected()) {
+		return false;
+	}
 	// AARGH!!! have to cast out of const because of mqtt lib!!
 	return mqttClient_.publish(const_cast<char*>(service), (uint8_t*)payload, plen);
 }

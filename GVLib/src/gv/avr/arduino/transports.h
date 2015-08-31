@@ -78,6 +78,9 @@ private:
 	MqttTransport& operator=(const MqttTransport&);
 
 	bool handleSubscription(const char* topic, CallbackPointer fn) override {
+		if (!ensureConnected()) {
+			return false;
+		}
 		return mqttClient_.subscribe(const_cast<char*>(topic)); }
 
 	static void pubsub_callback(char *topic, uint8_t *payload,

@@ -56,6 +56,12 @@ void setup() {
    * * * * * * * * * * * * * * */
   Ethernet.begin(mac, myIp.v4());
   
+  
+  /* * * * * * * * * * * * * * *
+     Connect the MQTT transport
+   * * * * * * * * * * * * * * */
+  mqttTransport.connect();
+  
   /* * * * * * * * * * * * * * *
      Then you declare yourself
    * * * * * * * * * * * * * * */

@@ -248,7 +248,7 @@ public:
 
 protected:
 	Transport() { }
-	virtual void ensureConnected() { while (!connected()) connect(); }
+	virtual bool ensureConnected() { if (!connected()) { return connect(); } return true; }
 private:
 	virtual bool handleSubscription(const char* topic, CallbackPointer cb) = 0;
 
