@@ -57,7 +57,7 @@ bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, con
 
 bool gv::avr::arduino::MqttTransport::connect() {
 	bool res;
-	Serial.print(F("MqttTransport: connecting... "));
+	Serial.println(F("MqttTransport: connecting... "));
 
 	char willTopic[TOPIC_NAME_SIZE];
 	sprintf_P(willTopic, PSTR("%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_STATUS);
@@ -67,7 +67,7 @@ bool gv::avr::arduino::MqttTransport::connect() {
 			willTopic, 1, 0, // QOS=1, RETAIN=0
 			const_cast<char*>(GV_PAYLOAD_STATUS_OFFLINE));
 
-	Serial.println(res ? F("done.") :  F("FAILED!"));
+	Serial.println(res ? F("Connection done.") :  F("Connection failed!"));
 
 	if(res) {
 		mqttClient_.publish(willTopic, (uint8_t*)GV_PAYLOAD_STATUS_ONLINE, sizeof(GV_PAYLOAD_STATUS_ONLINE));
