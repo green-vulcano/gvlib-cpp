@@ -99,7 +99,7 @@ void setup() {
    * ... and actuators
    *************************************/
   Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "NUMERIC");
+  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "NUMERIC", "/test/callback");
   
   /**********************************************
    * Don't forget to register your callbacks!

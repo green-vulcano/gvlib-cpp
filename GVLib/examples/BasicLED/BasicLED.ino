@@ -106,7 +106,7 @@ void setup() {
    * Then you declare your actuators...
    *************************************/
   Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "STRING");
+  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "STRING", "/devices/GVDEV999/actuators/ACD99901");
   
   /**********************************************
    * Don't forget to register your callbacks!
