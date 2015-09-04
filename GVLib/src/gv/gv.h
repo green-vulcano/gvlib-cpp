@@ -263,9 +263,9 @@ public:
 		transport_(transport), deviceInfo_(info) { }
 
 	virtual bool sendDeviceInfo() = 0;
-	virtual bool sendSensorConfig(char* id, const char* name, const char* type) = 0;
-	virtual bool sendActuatorConfig(char* id, const char* name, const char* type, const char* topic) = 0;
-	virtual bool sendData(char* id, const char* value) = 0;
+	virtual bool sendSensorConfig(const char* id, const char* name, const char* type) = 0;
+	virtual bool sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic) = 0;
+	virtual bool sendData(const char* id, const char* value) = 0;
 
 	virtual ~Protocol() { }
 protected:
@@ -283,10 +283,10 @@ class GVComm {
 		bool addCallback(const char* topic, CallbackPointer fn);
 
 		bool sendDeviceInfo() { return protocol_.sendDeviceInfo(); }
-		bool sendSensorConfig(char* id, const char* name, const char* type)
+		bool sendSensorConfig(const char* id, const char* name, const char* type)
 		{ return protocol_.sendSensorConfig(id, name, type); }
-		bool sendActuatorConfig(char* id, const char* name, const char* type, const char* topic, CallbackPointer fn=0);
-		bool sendData(char* id, const char* value)
+		bool sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic, CallbackPointer fn=0);
+		bool sendData(const char* id, const char* value)
 		{ return protocol_.sendData(id, value); }
 
 		bool poll();

@@ -40,9 +40,9 @@ public:
 		gv::protocols::Protocol_IOT_v1(info, transport) { }
 
 	bool sendDeviceInfo() override;
-	bool sendSensorConfig(char* id, const char* name, const char* type) override;
-	bool sendActuatorConfig(char* id, const char* name, const char* type, const char* topic) override;
-	bool sendData(char* id, const char* value) override;
+	bool sendSensorConfig(const char* id, const char* name, const char* type) override;
+	bool sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic) override;
+	bool sendData(const char* id, const char* value) override;
 
 };
 

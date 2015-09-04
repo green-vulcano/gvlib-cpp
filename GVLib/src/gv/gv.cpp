@@ -74,9 +74,7 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::sendActuatorConfig(char* id, const char* name,
-	                 const char* type, const char* topic, CallbackPointer fn)
-	{
+	bool GVComm::sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic, CallbackPointer fn) {
 		bool result = protocol_.sendActuatorConfig(id, name, type, topic);
 		if (result && fn) {
 			result = addCallback(topic, fn);
@@ -152,8 +150,7 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	bool Callback::find_(const char* topic, CallbackPointer fn,
-								Callback** ptr, Callback** prev) {
+	bool Callback::find_(const char* topic, CallbackPointer fn, Callback** ptr, Callback** prev) {
 		Callback* p = *ptr;
 		*prev = p;
 		while (p) {
