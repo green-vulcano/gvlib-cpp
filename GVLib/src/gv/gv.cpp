@@ -29,6 +29,7 @@
  */
 
 #include "gv/gv.h"
+#include "gv/avr/gv.h"
 #include "gv/portable_endian.h"
 
 
@@ -67,7 +68,17 @@ namespace gv {
 	//******************************************************************************
 	//
 	//******************************************************************************
-	bool GVComm::addCallback(const char* topic, CallbackPointer fn) {
+	bool GVComm::addCallback(const char* actuatorId, CallbackPointer fn) {
+		gv::avr::Buffer b;
+		b.add(GV_DEVICES);
+		b.add("/");
+		b.add(deviceInfo_.id());
+		b.add(GV_ACTUATORS);
+		b.add("/");
+		b.add(actuatorId);
+		b.add("/input");
+
+		const char* topic = b.get();
 		return transport_.subscribe(topic, fn);
 	}
 
