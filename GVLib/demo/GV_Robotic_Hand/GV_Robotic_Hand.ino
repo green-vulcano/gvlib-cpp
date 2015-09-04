@@ -132,7 +132,11 @@ void setup() {
   gvComm.sendDeviceInfo();
 
   Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig(1, "Actuator TEST", "NUMERIC", "/devices/GVDEV001/actuators");
+  gvComm.sendActuatorConfig("ACD00101", "Servo Thumb", "NUMERIC");
+  gvComm.sendActuatorConfig("ACD00102", "Servo Index Finger", "NUMERIC");
+  gvComm.sendActuatorConfig("ACD00103", "Servo Middle Finger", "NUMERIC");
+  gvComm.sendActuatorConfig("ACD00104", "Servo Ring Finger", "NUMERIC");
+  gvComm.sendActuatorConfig("ACD00105", "Servo Little Finger", "NUMERIC");
 
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00101/input", thumb);
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00102/input", index_finger);
@@ -140,6 +144,7 @@ void setup() {
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00104/input", ring_finger);
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00105/input", little_finger);
   
+  Serial.println("SETUP COMPLETED");
 }
 
 /****************************************************
