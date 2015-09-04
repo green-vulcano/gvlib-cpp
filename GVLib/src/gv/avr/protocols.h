@@ -41,7 +41,7 @@ public:
 
 	bool sendDeviceInfo() override;
 	bool sendSensorConfig(const char* id, const char* name, const char* type) override;
-	bool sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic) override;
+	bool sendActuatorConfig(const char* id, const char* name, const char* type) override;
 	bool sendData(const char* id, const char* value) override;
 
 };

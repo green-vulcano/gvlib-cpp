@@ -65,7 +65,7 @@ bool Protocol_IOT_v1::sendSensorConfig(const char* id, const char* name, const c
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
-bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic) {
+bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const char* type) {
 	Buffer b;
 	b.add(PSTR("{\"id\":"), true);
 	b.add(id);
@@ -73,8 +73,6 @@ bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const
 	b.add(name);
 	b.add(PSTR("\",\"tp\":\""), true);
 	b.add(type);
-	b.add(PSTR("\",\"to\":\""), true);
-	b.add(topic);
 	b.add(PSTR("\"}"), true);
 
 	char srv[80];

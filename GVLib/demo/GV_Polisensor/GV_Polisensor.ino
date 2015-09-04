@@ -123,6 +123,8 @@ void setup() {
   gvComm.sendSensorConfig("SED00305", "Slider", "JSON_OBJECT");
   gvComm.sendSensorConfig("SED00306", "Rotary", "NUMERIC");
   gvComm.sendSensorConfig("SED00307", "Switch", "BISTABLE");
+
+  gvComm.sendActuatorConfig("SED00307", "Switch", "BISTABLE");
   Serial.println(F("dones."));
 
   Serial.println("Setup completed");

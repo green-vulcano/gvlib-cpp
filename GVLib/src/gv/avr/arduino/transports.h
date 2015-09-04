@@ -22,12 +22,10 @@ namespace arduino {
 
 class RestTransport : public ServerAndPortTransport_base {
 public:
-	RestTransport(const DeviceInfo& info, const IPAddr& server,uint16_t port,
-			Client& ethClient) :
+	RestTransport(const DeviceInfo& info, const IPAddr& server,uint16_t port, Client& ethClient) :
 				ServerAndPortTransport_base(server, port),
 				ethClient_(ethClient) { }
-	bool send(const char* service, size_t slen,
-			const char* payload, size_t plen) override;
+	bool send(const char* service, size_t slen, const char* payload, size_t plen) override;
 	bool connected()  override { return ethClient_.connected(); }
 	bool disconnect() override { ethClient_.stop(); return true; };
 	bool connect()    override;
@@ -53,8 +51,7 @@ private:
 
 class MqttTransport : public ServerAndPortTransport_base {
 public:
-	MqttTransport(const DeviceInfo& info,
-			const IPAddr& server, uint16_t port, Client& ethClient) :
+	MqttTransport(const DeviceInfo& info, const IPAddr& server, uint16_t port, Client& ethClient) :
 				ServerAndPortTransport_base(server, port),
 				deviceInfo_(info),
 				// TODO: IPv4-only for now, please upgrade!

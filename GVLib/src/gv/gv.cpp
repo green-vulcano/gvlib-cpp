@@ -74,12 +74,8 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::sendActuatorConfig(const char* id, const char* name, const char* type, const char* topic, CallbackPointer fn) {
-		bool result = protocol_.sendActuatorConfig(id, name, type, topic);
-		if (result && fn) {
-			result = addCallback(topic, fn);
-		}
-		return result;
+	bool GVComm::sendActuatorConfig(const char* id, const char* name, const char* type) {		
+		return protocol_.sendActuatorConfig(id, name, type);
 	}
 
 	bool GVComm::poll() {
