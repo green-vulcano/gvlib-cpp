@@ -49,9 +49,7 @@ bool Protocol_IOT_v1::sendDeviceInfo() {
 	return transport_.send(GV_DEVICES, strlen(GV_DEVICES), payload, plen);
 }
 
-bool Protocol_IOT_v1::sendSensorConfig(
-		uint8_t id, const char* name, const char* type)
-{
+bool Protocol_IOT_v1::sendSensorConfig(char* id, const char* name, const char* type) {
 	Buffer b;
 	b.add(PSTR("{\"id\":"), true);
 	b.add(id);
@@ -67,9 +65,7 @@ bool Protocol_IOT_v1::sendSensorConfig(
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
-bool Protocol_IOT_v1::sendActuatorConfig(
-		uint8_t id, const char* name, const char* type, const char* topic)
-{
+bool Protocol_IOT_v1::sendActuatorConfig(char* id, const char* name, const char* type, const char* topic) {
 	Buffer b;
 	b.add(PSTR("{\"id\":"), true);
 	b.add(id);
@@ -87,18 +83,12 @@ bool Protocol_IOT_v1::sendActuatorConfig(
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
-bool Protocol_IOT_v1::sendData(uint8_t id, const char* value) {
+bool Protocol_IOT_v1::sendData(char* id, const char* value) {
 	Buffer b;
-
-	b.add(PSTR("{\"id\":"), true);
-	b.add(id);
-	b.add(PSTR(",\"value\":"), true);
 	b.add(value);
-	b.add(PSTR("}"), true);
 
 	char srv[80];
-	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%d%s"),
-			GV_DEVICES, deviceInfo_.id(), GV_SENSORS, id, GV_SENSOR_DATA);
+	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_SENSORS, id, GV_SENSOR_DATA);
 
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }

@@ -116,13 +116,13 @@ void setup() {
   Serial.println(F("done."));
 
   Serial.print(F("Sending Sensors Configuration: "));
-  gvComm.sendSensorConfig(pinTrigger,       "Distance Sensor", "NUMERIC");
-  gvComm.sendSensorConfig(pinButtonGreen,   "Green Button", "MONOSTABLE");
-  gvComm.sendSensorConfig(pinButtonRed,     "Red Button", "MONOSTABLE");
-  gvComm.sendSensorConfig(pinSwitch,        "Switch Button", "BISTABLE");
-  gvComm.sendSensorConfig(pinPotenziometer, "Potenziometer", "NUMERIC");
-  gvComm.sendSensorConfig(pinSlider,        "Slider", "JSON_OBJECT");
-  gvComm.sendSensorConfig(pinRotary,        "Rotary", "NUMERIC");
+  gvComm.sendSensorConfig("SED00301", "Distance Sensor", "NUMERIC");
+  gvComm.sendSensorConfig("SED00302", "Green Button", "MONOSTABLE");
+  gvComm.sendSensorConfig("SED00303", "Red Button", "MONOSTABLE");
+  gvComm.sendSensorConfig("SED00304", "Knob", "NUMERIC");
+  gvComm.sendSensorConfig("SED00305", "Slider", "JSON_OBJECT");
+  gvComm.sendSensorConfig("SED00306", "Rotary", "NUMERIC");
+  gvComm.sendSensorConfig("SED00307", "Switch", "BISTABLE");
   Serial.println(F("dones."));
 
   Serial.println("Setup completed");
@@ -162,7 +162,7 @@ void manageDistance() {
         root.printTo(buffer, sizeof(buffer));  
         char* data(buffer);
     
-        gvComm.sendData(pinTrigger, data);      
+        gvComm.sendData("SED00301", data);      
         Serial.println(distance);
       }
     }
@@ -176,7 +176,7 @@ void manageButtonGreen() {
   stateButtonGreen = !digitalRead(pinButtonGreen);
   
   if (stateButtonGreen == HIGH && oldStateButtonGreen == LOW) {
-    gvComm.sendData(pinButtonGreen, "{\"value\":true}");
+    gvComm.sendData("SED00302", "{\"value\":true}");
     oldStateButtonGreen = HIGH;
   }
   else if(stateButtonGreen == LOW && oldStateButtonGreen == HIGH) {
@@ -191,7 +191,7 @@ void manageButtonRed() {
   stateButtonRed = !digitalRead(pinButtonRed);
   
   if (stateButtonRed == HIGH && oldStateButtonRed == LOW) {
-    gvComm.sendData(pinButtonRed, "{\"value\":true}");
+    gvComm.sendData("SED00303", "{\"value\":true}");
     oldStateButtonRed = HIGH;
   }
   else if(stateButtonRed == LOW && oldStateButtonRed == HIGH) {
@@ -206,10 +206,10 @@ void manageSwitch() {
   stateSwitch = digitalRead(pinSwitch);
   
   if(stateSwitch == HIGH && oldStateSwitch == LOW) {
-     gvComm.sendData(pinSwitch, "{\"value\":true}");
+     gvComm.sendData("SED00307", "{\"value\":true}");
   }
   else if(stateSwitch == LOW && oldStateSwitch == HIGH) {
-    gvComm.sendData(pinSwitch, "{\"value\":false}");
+    gvComm.sendData("SED00307", "{\"value\":false}");
   }
 
   oldStateSwitch = stateSwitch;
@@ -231,7 +231,7 @@ void managePotenziometer() {
     root.printTo(buffer, sizeof(buffer));  
     char* data(buffer);
     
-    gvComm.sendData(pinPotenziometer, data);    
+    gvComm.sendData("SED00304", data);    
   }
 }
 
@@ -292,7 +292,7 @@ void manageSlider() {
     root.printTo(buffer, sizeof(buffer));  
     char* data(buffer);
 
-    gvComm.sendData(pinSlider, data);    
+    gvComm.sendData("SED00305", data);
   }
 }
 
@@ -315,7 +315,7 @@ void manageRotary() {
       root.printTo(buffer, sizeof(buffer));  
       char* data(buffer);
     
-      gvComm.sendData(pinRotary, data);    
+      gvComm.sendData("SED00306", data);    
     }
   }
 }
