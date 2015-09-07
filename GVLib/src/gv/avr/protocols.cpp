@@ -35,13 +35,13 @@ namespace gv { namespace avr {
 
 bool Protocol_IOT_v1::sendDeviceInfo() {
 	Buffer b;
-	b.add(PSTR("{\"id\": \""), true);
+	b.add(PSTR("{\"id\":\""), true);
 	b.add(deviceInfo_.id());
-	b.add(PSTR("\", \"nm\": \""), true);
+	b.add(PSTR("\",\"nm\":\""), true);
 	b.add(deviceInfo_.name());
-	b.add(PSTR("\", \"ip\": \""), true);
+	b.add(PSTR("\",\"ip\":\""), true);
 	b.add(deviceInfo_.ip());
-	b.add(PSTR("\", \"prt\": \""), true);
+	b.add(PSTR("\",\"prt\":\""), true);
 	b.add((int)deviceInfo_.port());
 	b.add(PSTR("\"}"), true);
 	const char* payload = b.get();
@@ -51,9 +51,9 @@ bool Protocol_IOT_v1::sendDeviceInfo() {
 
 bool Protocol_IOT_v1::sendSensorConfig(const char* id, const char* name, const char* type) {
 	Buffer b;
-	b.add(PSTR("{\"id\":"), true);
+	b.add(PSTR("{\"id\":\""), true);
 	b.add(id);
-	b.add(PSTR(",\"nm\":\""), true);
+	b.add(PSTR("\",\"nm\":\""), true);
 	b.add(name);
 	b.add(PSTR("\",\"tp\":\""), true);
 	b.add(type);
@@ -67,9 +67,9 @@ bool Protocol_IOT_v1::sendSensorConfig(const char* id, const char* name, const c
 
 bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const char* type) {
 	Buffer b;
-	b.add(PSTR("{\"id\":"), true);
+	b.add(PSTR("{\"id\":\""), true);
 	b.add(id);
-	b.add(PSTR(",\"nm\":\""), true);
+	b.add(PSTR("\",\"nm\":\""), true);
 	b.add(name);
 	b.add(PSTR("\",\"tp\":\""), true);
 	b.add(type);

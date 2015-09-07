@@ -38,6 +38,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <Arduino.h>
 
 #define GV_DEVICES      "/devices"
 #define GV_SENSORS      "/sensors"
@@ -236,7 +237,10 @@ public:
 
 	bool subscribe(const char* topic, CallbackPointer cb) {
 		if (handleSubscription(topic, cb)) {
-			Callback::add(topic, cb);
+			Serial.print("Subscribe: ");
+			Serial.println(topic);
+
+			Callback::add(topic, cb);\
 			return true;
 		}
 		return false;
@@ -280,7 +284,7 @@ class GVComm {
 	public:
 		GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol);
 
-		bool addCallback(const char* topic, CallbackPointer fn);
+		bool addCallback(const char* actuatorId, CallbackPointer fn);
 
 		bool sendDeviceInfo() { return protocol_.sendDeviceInfo(); }
 		bool sendSensorConfig(const char* id, const char* name, const char* type)
