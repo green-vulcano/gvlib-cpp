@@ -31,6 +31,8 @@
 #include "gv/gv.h"
 #include "gv/avr/gv.h"
 #include "gv/portable_endian.h"
+#include <Arduino.h>
+
 
 
 namespace gv {
@@ -79,6 +81,8 @@ namespace gv {
 		b.add("/input");
 
 		const char* topic = b.get();
+		Serial.print("Add Callback: ");
+		Serial.println(topic);
 		return transport_.subscribe(topic, fn);
 	}
 
@@ -111,7 +115,9 @@ namespace gv {
 	//
 	//******************************************************************************
 	Callback* Callback::add(const char* topic, CallbackPointer fn) {
-		Callback* cb = new Callback(topic, fn);
+		  Serial.print("Add 2 Callback: ");
+		  Serial.println(topic);
+		  Callback* cb = new Callback(topic, fn);
 
 		if (head_) {
 			Callback* ptr = head_;

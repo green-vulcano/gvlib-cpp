@@ -138,11 +138,17 @@ void setup() {
   gvComm.sendActuatorConfig("ACD00104", "Servo Ring Finger", "NUMERIC");
   gvComm.sendActuatorConfig("ACD00105", "Servo Little Finger", "NUMERIC");
 
-  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00101/input", thumb);
+  gvComm.addCallback("ACD00101", thumb);
+  gvComm.addCallback("ACD00102", index_finger);
+  gvComm.addCallback("ACD00103", middle_finger);
+  gvComm.addCallback("ACD00104", ring_finger);
+  gvComm.addCallback("ACD00105", little_finger);
+  
+  /*gvComm.addCallback("/devices/GVDEV001/actuators/ACD00101/input", thumb);
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00102/input", index_finger);
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00103/input", middle_finger);
   gvComm.addCallback("/devices/GVDEV001/actuators/ACD00104/input", ring_finger);
-  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00105/input", little_finger);
+  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00105/input", little_finger);*/
   
   Serial.println("SETUP COMPLETED");
 }
