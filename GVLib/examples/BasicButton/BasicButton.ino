@@ -80,13 +80,13 @@ void setup() {
    * Then you declare yourself
    *****************************/
   Serial.println(F("Sending Device Information: "));
-  gvComm.sendDeviceInfo();
+  gvComm.addDevice();
 
   /*************************************
    * Then you declare your sensors
    *************************************/
   Serial.println(F("Sending Sensor Configuration: "));
-  gvComm.sendActuatorConfig("SED99901", "Button TEST", "NUMERIC");
+  gvComm.addSensor("SED99901", "Button TEST", "NUMERIC");
 
   Serial.println("SETUP COMPLETED");
 

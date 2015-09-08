@@ -87,27 +87,24 @@ void setup() {
    * Then you declare yourself
    *****************************/
   Serial.println(F("Sending Device Information: "));
-  gvComm.sendDeviceInfo();
+  gvComm.addDevice();
 
   /*************************************
    * Then you declare your sensors...
    *************************************/
   Serial.println(F("Sending Sensors Configuration: "));
-  gvComm.sendSensorConfig("SED99901", "Sensor TEST", "NUMERIC");  
+  gvComm.addSensor("SED99901", "Sensor TEST", "NUMERIC");  
 
   /*************************************
    * ... and actuators
-   *************************************/
-  Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "NUMERIC");
-  
-  /**********************************************
+   * 
    * Don't forget to register your callbacks!
    * (you can do this in the beginning too,
    *  but ALWAYS after Ethernet is initialized)
-   **********************************************/
-  gvComm.addCallback("/test/callback/1", callback1);
-  gvComm.addCallback("/test/callback/2", callback2);
+   *************************************/
+  Serial.println(F("Sending Actuators Configuration: "));
+  gvComm.addActuator("ACD99901", "Actuator TEST", "NUMERIC", callback1);
+  gvComm.addActuator("ACD99902", "Actuator TEST", "NUMERIC", callback2);
 }
 
 

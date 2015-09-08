@@ -100,23 +100,19 @@ void setup() {
    * Then you declare yourself
    *****************************/
   Serial.println(F("Sending Device Information: "));
-  gvComm.sendDeviceInfo();
+  gvComm.addDevice();
 
   /*************************************
    * Then you declare your actuators...
-   *************************************/
-  Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig("ACD99901", "Actuator TEST", "STRING");
-  
-  /**********************************************
+   * 
    * Don't forget to register your callbacks!
    * (you can do this in the beginning too,
    *  but ALWAYS after Ethernet is initialized)
-   **********************************************/
-  gvComm.addCallback("/devices/GVDEV999/actuators/ACD99901/input", light);
+   *************************************/
+  Serial.println(F("Sending Actuators Configuration: "));
+  gvComm.addActuator("ACD99901", "Actuator TEST", "STRING", light);
 
   Serial.println("SETUP COMPLETED");
-
 }
 
 /****************************************************
@@ -125,7 +121,6 @@ void setup() {
 void loop() {
   
   //Serial.println(F("LOOPING..."));
-  
   gvComm.poll();
 }
 
