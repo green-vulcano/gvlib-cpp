@@ -30,30 +30,20 @@
 #include "gv/protocols.h"
 
 namespace gv {
+	namespace avr {
+		class Protocol_IOT_v1 : public gv::protocols::Protocol_IOT_v1 {
+			public:
+				Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
+					gv::protocols::Protocol_IOT_v1(info, transport) { }
 
-namespace avr {
+				bool addDevice() override;
+				bool addSensor(const char* id, const char* name, const char* type) override;
+				bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) override;
+				bool sendData(const char* id, const char* value) override;
+		};
 
-
-class Protocol_IOT_v1 : public gv::protocols::Protocol_IOT_v1 {
-public:
-	Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
-		gv::protocols::Protocol_IOT_v1(info, transport) { }
-
-	bool sendDeviceInfo() override;
-	bool sendSensorConfig(const char* id, const char* name, const char* type) override;
-	bool sendActuatorConfig(const char* id, const char* name, const char* type) override;
-	bool sendData(const char* id, const char* value) override;
-
-};
-
-typedef Protocol_IOT_v1 DefaultProtocol;
-
-
+		typedef Protocol_IOT_v1 DefaultProtocol;
+	}
 }
-
-
-}
-
-
 
 #endif /* GV_AVR_PROTOCOLS_H_ */

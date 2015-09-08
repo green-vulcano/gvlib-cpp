@@ -79,9 +79,9 @@
 
 namespace gv {
 
-/**
+/**************************************************************************
  * Class to support both IPv4 and IPv6 address families.
- */
+ **************************************************************************/
 class IPAddr {
 	public:		
 		enum Type {
@@ -112,9 +112,9 @@ class IPAddr {
 		static const uint8_t IPv4_MASK[12];
 };
 
-/**
- *
- */
+/**************************************************************************
+ * 
+ **************************************************************************/
 class DeviceInfo {
 	public:
 		DeviceInfo(const char* id, const char* name, const IPAddr& addr, uint16_t port) : 
@@ -146,25 +146,25 @@ class DeviceInfo {
 		const uint16_t port_;
 };
 
-/**
+/**************************************************************************
  * Callback parameter type
- */
+ **************************************************************************/ 
 struct CallbackParam {
 	void* data;
 	size_t size;
 };
 
-/**
+/**************************************************************************
  * Callback function type.
  * By convention, if not returning *different* data, a callback
  * function must return the same callback param which it received
  * as input.
- */
+ **************************************************************************/
 typedef CallbackParam (*CallbackPointer)(CallbackParam);
 
-/**
+/**************************************************************************
  *	A class to hold callback delegates in GVLib.
- */
+ **************************************************************************/
 class Callback {
 	public:
 		/**
@@ -232,9 +232,9 @@ class Callback {
 		static bool find_(const char* topic, CallbackPointer fn, Callback** ptr, Callback** prev);
 };
 
-/**
- *	
- */
+/**************************************************************************
+ *
+ **************************************************************************/
 class Transport {
 	public:
 		virtual bool connected()  = 0;
@@ -269,17 +269,17 @@ class Transport {
 		Transport& operator=(const Transport&);
 };
 
-/**
- *	
- */
+/**************************************************************************
+ *
+ **************************************************************************/
 class Protocol {
 	public:
 		Protocol(const DeviceInfo& info, Transport& transport) :
 			transport_(transport), deviceInfo_(info) { }
 
-		virtual bool sendDeviceInfo() = 0;
-		virtual bool sendSensorConfig(const char* id, const char* name, const char* type) = 0;
-		virtual bool sendActuatorConfig(const char* id, const char* name, const char* type) = 0;
+		virtual bool addDevice() = 0;
+		virtual bool addSensor(const char* id, const char* name, const char* type) = 0;
+		virtual bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) = 0;
 		virtual bool sendData(const char* id, const char* value) = 0;
 
 		virtual ~Protocol() { }
@@ -289,24 +289,24 @@ class Protocol {
 		const DeviceInfo&  deviceInfo_;
 };
 
-/**
- *	
- */
+/**************************************************************************
+ *
+ **************************************************************************/
 class GVComm {
 	public:
 		GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol);
 
 		bool addCallback(const char* actuatorId, CallbackPointer fn);
 
-		bool sendDeviceInfo() { 
-			return protocol_.sendDeviceInfo(); 
+		bool addDevice() { 
+			return protocol_.addDevice(); 
 		}
 
-		bool sendSensorConfig(const char* id, const char* name, const char* type) { 
-			return protocol_.sendSensorConfig(id, name, type); 
+		bool addSensor(const char* id, const char* name, const char* type) { 
+			return protocol_.addSensor(id, name, type); 
 		}
 
-		bool sendActuatorConfig(const char* id, const char* name, const char* type);
+		bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn);
 
 		bool sendData(const char* id, const char* value) { 
 			return protocol_.sendData(id, value); 
@@ -324,9 +324,9 @@ class GVComm {
 		const DeviceInfo& deviceInfo_;
 };
 
-/**
- *	
- */
+/**************************************************************************
+ *
+ **************************************************************************/
 class ServerAndPortTransport_base : public virtual Transport {
 	protected:
 		//static const int MAX_SERVER_LEN = 64;

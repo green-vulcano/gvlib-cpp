@@ -33,23 +33,17 @@
 #include "gv/gv.h"
 
 namespace gv {
-
-namespace protocols {
-
-
-class Protocol_IOT_v1 : public Protocol {
-public:
-	Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
-		Protocol(info, transport) { }
-
-};
-
-
+	namespace protocols {
+		
+		/**************************************************************************
+		 * 
+		 **************************************************************************/
+		class Protocol_IOT_v1 : public Protocol {
+			public:
+				Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
+					Protocol(info, transport) { }
+		};
+	}
 }
-
-
-}
-
-
 
 #endif /* GV_PROTOCOLS_H_ */

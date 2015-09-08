@@ -129,26 +129,14 @@ void setup() {
   mqttTransport.connect();
 
   Serial.println(F("Sending Device Information: "));
-  gvComm.sendDeviceInfo();
+  gvComm.addDevice();
 
   Serial.println(F("Sending Actuators Configuration: "));
-  gvComm.sendActuatorConfig("ACD00101", "Servo Thumb", "NUMERIC");
-  gvComm.sendActuatorConfig("ACD00102", "Servo Index Finger", "NUMERIC");
-  gvComm.sendActuatorConfig("ACD00103", "Servo Middle Finger", "NUMERIC");
-  gvComm.sendActuatorConfig("ACD00104", "Servo Ring Finger", "NUMERIC");
-  gvComm.sendActuatorConfig("ACD00105", "Servo Little Finger", "NUMERIC");
-
-  gvComm.addCallback("ACD00101", thumb);
-  gvComm.addCallback("ACD00102", index_finger);
-  gvComm.addCallback("ACD00103", middle_finger);
-  gvComm.addCallback("ACD00104", ring_finger);
-  gvComm.addCallback("ACD00105", little_finger);
-  
-//  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00101/input", thumb);
-//  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00102/input", index_finger);
-//  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00103/input", middle_finger);
-//  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00104/input", ring_finger);
-//  gvComm.addCallback("/devices/GVDEV001/actuators/ACD00105/input", little_finger);
+  gvComm.addActuator("ACD00101", "Servo Thumb", "NUMERIC", thumb);
+  gvComm.addActuator("ACD00102", "Servo Index Finger", "NUMERIC", index_finger);
+  gvComm.addActuator("ACD00103", "Servo Middle Finger", "NUMERIC", middle_finger);
+  gvComm.addActuator("ACD00104", "Servo Ring Finger", "NUMERIC", ring_finger);
+  gvComm.addActuator("ACD00105", "Servo Little Finger", "NUMERIC", little_finger);
   
   Serial.println("SETUP COMPLETED");
 }

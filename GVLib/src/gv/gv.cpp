@@ -33,7 +33,6 @@
 #include "gv/portable_endian.h"
 
 namespace gv {
-
 	const uint8_t IPAddr::IPv4_MASK[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
 
 	/**************************************************************************
@@ -86,8 +85,8 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::sendActuatorConfig(const char* id, const char* name, const char* type) {		
-		return protocol_.sendActuatorConfig(id, name, type);
+	bool GVComm::addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) {		
+		return protocol_.addActuator(id, name, type, fn);
 	}
 
 	/**************************************************************************

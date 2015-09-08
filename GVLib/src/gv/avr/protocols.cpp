@@ -28,12 +28,14 @@
 #include "gv/avr/protocols.h"
 #include "gv/avr/gv.h"
 
-
 #include <avr/pgmspace.h>
 
 namespace gv { namespace avr {
 
-bool Protocol_IOT_v1::sendDeviceInfo() {
+/**************************************************************************
+ * 
+ **************************************************************************/
+bool Protocol_IOT_v1::addDevice() {
 	Buffer b;
 	b.add(PSTR("{\"id\":\""), true);
 	b.add(deviceInfo_.id());
@@ -49,7 +51,10 @@ bool Protocol_IOT_v1::sendDeviceInfo() {
 	return transport_.send(GV_DEVICES, strlen(GV_DEVICES), payload, plen);
 }
 
-bool Protocol_IOT_v1::sendSensorConfig(const char* id, const char* name, const char* type) {
+/**************************************************************************
+ * 
+ **************************************************************************/
+bool Protocol_IOT_v1::addSensor(const char* id, const char* name, const char* type) {
 	Buffer b;
 	b.add(PSTR("{\"id\":\""), true);
 	b.add(id);
@@ -65,7 +70,22 @@ bool Protocol_IOT_v1::sendSensorConfig(const char* id, const char* name, const c
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
-bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const char* type) {
+/**************************************************************************
+ * 
+ **************************************************************************/
+bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) {
+	Buffer b_topic;
+	b_topic.add(GV_DEVICES);
+	b_topic.add("/");
+	b_topic.add(deviceInfo_.id());
+	b_topic.add(GV_ACTUATORS);
+	b_topic.add("/");
+	b_topic.add(id);
+	b_topic.add(GV_INPUT);
+
+	// subscribes function to topic
+	transport_.subscribe(b_topic.get(), fn);
+
 	Buffer b;
 	b.add(PSTR("{\"id\":\""), true);
 	b.add(id);
@@ -77,10 +97,13 @@ bool Protocol_IOT_v1::sendActuatorConfig(const char* id, const char* name, const
 
 	char srv[80];
 	int srvlen = sprintf_P(srv, PSTR("%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_ACTUATORS);
-
+	
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
+/**************************************************************************
+ * 
+ **************************************************************************/
 bool Protocol_IOT_v1::sendData(const char* id, const char* value) {
 	Buffer b;
 	b.add(value);
