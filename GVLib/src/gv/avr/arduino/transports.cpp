@@ -6,27 +6,32 @@
  *      Author: Domenico Barra <eisenach@gmail.com>
  */
 
-
 #include "gv/avr/arduino/transports.h"
 #include "gv/avr/arduino/gv.h"
 
 #include "PubSubClient.h"
 #include "Client.h"
 
-
-
+/**************************************************************************
+ * 
+ **************************************************************************/
 bool gv::avr::arduino::RestTransport::connect() {
 	int res;
 	Serial.print(F("RestTransport: connecting... "));
 	res = ethClient_.connect(server().v4(), port());
+
 	if (res < 0) {
 		Serial.println(F("FAILED!"));
 		return false;
 	}
+
 	Serial.println(F("done."));
 	return true;
 }
 
+/**************************************************************************
+ * 
+ **************************************************************************/
 bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
 	ensureConnected();
 	char outBuf[64];
@@ -41,9 +46,7 @@ bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, con
 	ethClient_.println(F("Connection: close\r\nContent-Type: application/json; charset=utf-8"));
 	sprintf_P(outBuf,PSTR("Content-Length: %u\r\n"),strlen(payload));
 	ethClient_.println(outBuf);
-
-	// DATA
-	ethClient_.println(payload);
+	ethClient_.println(payload); // DATA
 
 	while (ethClient_.read() != -1) {
 		// TODO: here we are throwing any incoming data away as we are not
@@ -54,7 +57,9 @@ bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, con
 	return true;
 }
 
-
+/**************************************************************************
+ * 
+ **************************************************************************/
 bool gv::avr::arduino::MqttTransport::connect() {
 	bool res;
 	Serial.println(F("MqttTransport: connecting... "));
@@ -76,10 +81,14 @@ bool gv::avr::arduino::MqttTransport::connect() {
 	return res;
 }
 
+/**************************************************************************
+ * 
+ **************************************************************************/
 bool gv::avr::arduino::MqttTransport::send(const char* service, size_t slen, const char* payload, size_t plen) {
 	if (!ensureConnected()) {
 		return false;
 	}
+	
 	// AARGH!!! have to cast out of const because of mqtt lib!!
 	return mqttClient_.publish(const_cast<char*>(service), (uint8_t*)payload, plen);
 }
