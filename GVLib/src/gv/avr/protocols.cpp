@@ -37,18 +37,20 @@ namespace gv { namespace avr {
  **************************************************************************/
 bool Protocol_IOT_v1::addDevice() {
 	Buffer b;
-	b.add(PSTR("{\"id\":\""), true);
-	b.add(deviceInfo_.id());
-	b.add(PSTR("\",\"nm\":\""), true);
+	b.add(PSTR("{\"nm\":\""), true);
 	b.add(deviceInfo_.name());
 	b.add(PSTR("\",\"ip\":\""), true);
 	b.add(deviceInfo_.ip());
 	b.add(PSTR("\",\"prt\":\""), true);
 	b.add((int)deviceInfo_.port());
 	b.add(PSTR("\"}"), true);
+
 	const char* payload = b.get();
-	int plen = b.len();
-	return transport_.send(GV_DEVICES, strlen(GV_DEVICES), payload, plen);
+
+	char srv[80];
+	int srvlen = sprintf_P(srv, PSTR("%s/%s"), GV_DEVICES, deviceInfo_.id());
+
+	return transport_.send(srv, srvlen, b.get(), b.len());
 }
 
 /**************************************************************************
@@ -56,16 +58,14 @@ bool Protocol_IOT_v1::addDevice() {
  **************************************************************************/
 bool Protocol_IOT_v1::addSensor(const char* id, const char* name, const char* type) {
 	Buffer b;
-	b.add(PSTR("{\"id\":\""), true);
-	b.add(id);
-	b.add(PSTR("\",\"nm\":\""), true);
+	b.add(PSTR("{\"nm\":\""), true);
 	b.add(name);
 	b.add(PSTR("\",\"tp\":\""), true);
 	b.add(type);
 	b.add(PSTR("\"}"), true);
 
 	char srv[80];
-	int srvlen = sprintf_P(srv, PSTR("%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_SENSORS);
+	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%s"), GV_DEVICES, deviceInfo_.id(), GV_SENSORS, id);
 
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }
@@ -87,16 +87,14 @@ bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* 
 	transport_.subscribe(b_topic.get(), fn);
 
 	Buffer b;
-	b.add(PSTR("{\"id\":\""), true);
-	b.add(id);
-	b.add(PSTR("\",\"nm\":\""), true);
+	b.add(PSTR("{\"nm\":\""), true);
 	b.add(name);
 	b.add(PSTR("\",\"tp\":\""), true);
 	b.add(type);
 	b.add(PSTR("\"}"), true);
 
 	char srv[80];
-	int srvlen = sprintf_P(srv, PSTR("%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_ACTUATORS);
+	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%s"), GV_DEVICES, deviceInfo_.id(), GV_ACTUATORS, id);
 	
 	return transport_.send(srv, srvlen, b.get(), b.len());
 }

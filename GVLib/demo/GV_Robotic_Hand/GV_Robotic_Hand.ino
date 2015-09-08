@@ -131,7 +131,7 @@ void setup() {
   Serial.println(F("Sending Device Information: "));
   gvComm.addDevice();
 
-  Serial.println(F("Sending Actuators Configuration: "));
+  Serial.println(F("Sending Actuators Configuration: ")); 
   gvComm.addActuator("ACD00101", "Servo Thumb", "NUMERIC", thumb);
   gvComm.addActuator("ACD00102", "Servo Index Finger", "NUMERIC", index_finger);
   gvComm.addActuator("ACD00103", "Servo Middle Finger", "NUMERIC", middle_finger);
