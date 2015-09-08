@@ -112,20 +112,16 @@ void setup() {
   digitalWrite(pinStatusLed, HIGH);
   
   Serial.print(F("Sending Device Information: "));
-  gvComm.sendDeviceInfo();
-  Serial.println(F("done."));
+  gvComm.addDevice();
 
   Serial.print(F("Sending Sensors Configuration: "));
-  gvComm.sendSensorConfig("SED00301", "Distance Sensor", "NUMERIC");
-  gvComm.sendSensorConfig("SED00302", "Green Button", "MONOSTABLE");
-  gvComm.sendSensorConfig("SED00303", "Red Button", "MONOSTABLE");
-  gvComm.sendSensorConfig("SED00304", "Knob", "NUMERIC");
-  gvComm.sendSensorConfig("SED00305", "Slider", "JSON_OBJECT");
-  gvComm.sendSensorConfig("SED00306", "Rotary", "NUMERIC");
-  gvComm.sendSensorConfig("SED00307", "Switch", "BISTABLE");
-
-  gvComm.sendActuatorConfig("SED00307", "Switch", "BISTABLE");
-  Serial.println(F("dones."));
+  gvComm.addSensor("SED00301", "Distance Sensor", "NUMERIC");
+  gvComm.addSensor("SED00302", "Green Button", "MONOSTABLE");
+  gvComm.addSensor("SED00303", "Red Button", "MONOSTABLE");
+  gvComm.addSensor("SED00304", "Knob", "NUMERIC");
+  gvComm.addSensor("SED00305", "Slider", "JSON_OBJECT");
+  gvComm.addSensor("SED00306", "Rotary", "NUMERIC");
+  gvComm.addSensor("SED00307", "Switch", "BISTABLE");
 
   Serial.println("Setup completed");
 }
