@@ -239,8 +239,8 @@ class Transport {
 	public:
 		virtual bool connected()  = 0;
 		virtual bool connect()    = 0;
+		virtual bool connect(const char *username, const char *password) = 0;
 		virtual bool disconnect() = 0;
-
 		virtual bool send(const char* service, size_t slen, const char* payload, size_t plen) = 0;
 
 		bool subscribe(const char* topic, CallbackPointer cb) {
@@ -255,7 +255,6 @@ class Transport {
 		}
 
 		virtual bool poll() = 0;
-
 		virtual ~Transport() { }
 
 	protected:
@@ -264,7 +263,6 @@ class Transport {
 
 	private:
 		virtual bool handleSubscription(const char* topic, CallbackPointer cb) = 0;
-
 		Transport(const Transport&);
 		Transport& operator=(const Transport&);
 };
