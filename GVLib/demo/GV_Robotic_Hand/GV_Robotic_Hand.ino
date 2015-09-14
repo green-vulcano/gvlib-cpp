@@ -35,19 +35,52 @@ const char device_id[] = "GVDEV001";
 const char device_name[] = "GV Robotic Hand";
 
 /****************************************************
- * Actuators
+ * We define a simple wrapping class for our servos
+ * and their related info
  ****************************************************/
-Servo servo_thumb;
-Servo servo_index_finger;
-Servo servo_middle_finger;
-Servo servo_ring_finger;
-Servo servo_little_finger;
 
-int pin_thumb = 7;
-int pin_index_finger = 6;
-int pin_middle_finger = 5;
-int pin_ring_finger = 4;
-int pin_little_finger = 3;
+#define F_THUMB     0
+#define F_INDEX     1
+#define F_MIDDLE    2
+#define F_RING      3
+#define F_LITTLE    4
+#define NUM_FINGERS 5
+
+struct ServoDesc {
+    // in a real-life example you'd want to make this
+    // a bit more robust, but for the demo's it's probably
+    // more than sufficient
+    const char* id;
+    const char* name;
+    const int   pin;
+    Servo       servo;
+    
+    ServoDesc(const char* id_, const char* name_, int pin_,
+	      gv::CallbackPointer callback, GVComm& gvComm)
+	: id(id_), name(name_), pin(pin_)
+    {    
+	servo.attach(pin);
+	gvComm.addActuator(id, name, "NUMERIC", callback);
+    }
+    
+    void move(int value, bool reverse)
+    {
+	if(reverse) {
+	    value = (-1*(value - 180));    
+	}
+	Serial.print(F("Moving ")); Serial.print(name);
+	Serial.print(F(" to: "));   Serial.println(value);
+	servo.write(value);
+    }
+};
+
+ServoDesc* arrServoDesc[NUM_FINGERS]; // will be initialized in setup()
+
+int extractValueFromPayload(void* payload) {
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload);
+  return (int)root["value"];
+}
 
 /*****************************************************
    GVLIB callback functions: they have to respect the
@@ -55,44 +88,28 @@ int pin_little_finger = 3;
    You need to register these functions in the
    `setup()` phase.
 ******************************************************/
-
-gv::CallbackParam thumb(gv::CallbackParam payload) {
-  Serial.print(F("Position Thumb: "));
-  Serial.println((char*)payload.data);
-  int value = getServoValue((byte*)payload.data);
-  handle_thumb(value,false);
+gv::CallbackParam cbThumb(gv::CallbackParam payload) {
+  arrServoDesc[F_THUMB]->move(extractValueFromPayload(payload.data), false);
   return payload;
 }
 
-gv::CallbackParam index_finger(gv::CallbackParam payload) {
-  Serial.print(F("Position Index finger: "));
-  Serial.println((char*)payload.data);
-  int value = getServoValue((byte*)payload.data);
-  handle_index_finger(value, false);
+gv::CallbackParam cbIndex(gv::CallbackParam payload) {
+  arrServoDesc[F_INDEX]->move(extractValueFromPayload(payload.data), false);
   return payload;
 }
 
-gv::CallbackParam middle_finger(gv::CallbackParam payload) {
-  Serial.print(F("Position Middle finger: "));
-  Serial.println((char*)payload.data);
-  int value = getServoValue((byte*)payload.data);
-  handle_middle_finger(value, true);
+gv::CallbackParam cbMiddle(gv::CallbackParam payload) {
+  arrServoDesc[F_MIDDLE]->move(extractValueFromPayload(payload.data), false);
   return payload;
 }
 
-gv::CallbackParam ring_finger(gv::CallbackParam payload) {
-  Serial.print(F("Position Ring finger: "));
-  Serial.println((char*)payload.data);
-  int value = getServoValue((byte*)payload.data);
-  handle_ring_finger(value, false);
+gv::CallbackParam cbRing(gv::CallbackParam payload) {
+  arrServoDesc[F_RING]->move(extractValueFromPayload(payload.data), false);
   return payload;
 }
 
-gv::CallbackParam little_finger(gv::CallbackParam payload) {
-  Serial.print(F("Position Little finger: "));
-  Serial.println((char*)payload.data);
-  int value = getServoValue((byte*)payload.data);
-  handle_little_finger(value, true);
+gv::CallbackParam cbLittle(gv::CallbackParam payload) {
+  arrServoDesc[F_LITTLE]->move(extractValueFromPayload(payload.data), false);
   return payload;
 }
 
@@ -117,26 +134,20 @@ GVComm gvComm(deviceInfo, mqttTransport, protocol);
 void setup() {
 
   Serial.begin(115200);
-
   Ethernet.begin(mac, myIp.v4());
-  
-  servo_thumb.attach(pin_thumb);
-  servo_index_finger.attach(pin_index_finger);
-  servo_middle_finger.attach(pin_middle_finger);
-  servo_ring_finger.attach(pin_ring_finger);
-  servo_little_finger.attach(pin_little_finger);
 
   mqttTransport.connect();
 
   Serial.println(F("Sending Device Information: "));
   gvComm.addDevice();
 
-  Serial.println(F("Sending Actuators Configuration: ")); 
-  gvComm.addActuator("ACD00101", "Servo Thumb", "NUMERIC", thumb);
-  gvComm.addActuator("ACD00102", "Servo Index Finger", "NUMERIC", index_finger);
-  gvComm.addActuator("ACD00103", "Servo Middle Finger", "NUMERIC", middle_finger);
-  gvComm.addActuator("ACD00104", "Servo Ring Finger", "NUMERIC", ring_finger);
-  gvComm.addActuator("ACD00105", "Servo Little Finger", "NUMERIC", little_finger);
+  Serial.println(F("Sending Actuators Configuration: "));
+  
+  arrServoDesc[F_THUMB ] = new ServoDesc("ACD00101",  "Servo Thumb",  7, cbThumb,  gvComm);
+  arrServoDesc[F_INDEX ] = new ServoDesc("ACD00102",  "Servo Index",  6, cbIndex,  gvComm);
+  arrServoDesc[F_MIDDLE] = new ServoDesc("ACD00103",  "Servo Middle", 5, cbMiddle, gvComm);
+  arrServoDesc[F_RING  ] = new ServoDesc("ACD00104",  "Servo Ring",   4, cbRing,   gvComm);
+  arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Servo Little", 3, cbLittle, gvComm);
   
   Serial.println("SETUP COMPLETED");
 }
@@ -149,65 +160,4 @@ void loop() {
   gvComm.poll();
 }
 
-/****************************************************
- *  
- ****************************************************/
-
-int getServoValue(byte* payload) {
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject((char*)payload);
-
-  return (int)root["value"];
-}
-
-/****************************************************
- *  
- ****************************************************/
-
-void handle_thumb(int value, boolean reverse) {
-  if(reverse) {
-    value = (int)(-1*(value - 180));
-  }
-  servo_thumb.write(value);
-}
-
-/****************************************************
- *  
- ****************************************************/
-void handle_index_finger(int value, boolean reverse) {
-  if(reverse) {
-    value = (int)(-1*(value - 180));
-  }
-  servo_index_finger.write(value);
-}
-
-/****************************************************
- *  
- ****************************************************/
-void handle_middle_finger(int value, boolean reverse) {
-  if(reverse) {
-    value = (int)(-1*(value - 180));
-  }
-  servo_middle_finger.write(value);
-}
-
-/****************************************************
- *  
- ****************************************************/
-void handle_ring_finger(int value, boolean reverse) {
-  if(reverse) {
-    value = (int)(-1*(value - 180));
-  }
-  servo_ring_finger.write(value);
-}
-
-/****************************************************
- *  
- ****************************************************/
-void handle_little_finger(int value, boolean reverse) {
-  if(reverse) {
-    value = (int)(-1*(value - 180));
-  }
-  servo_little_finger.write(value);
-}
 

@@ -59,9 +59,11 @@ class RestTransport : public ServerAndPortTransport_base {
  **************************************************************************/
 class MqttTransport : public ServerAndPortTransport_base {
 	public:
-		MqttTransport(const DeviceInfo& info, const IPAddr& server, uint16_t port, Client& ethClient) :
+		MqttTransport(const DeviceInfo& info, const IPAddr& server, uint16_t port, Client& ethClient,
+				const char* username=NULL, const char* password=NULL) :
 			// TODO: IPv4-only for now, please upgrade!
-			ServerAndPortTransport_base(server, port), deviceInfo_(info), mqttClient_(const_cast<uint8_t*>(server.v4()), port, pubsub_callback, ethClient) { }
+			ServerAndPortTransport_base(server, port), deviceInfo_(info), mqttClient_(const_cast<uint8_t*>(server.v4()), port, pubsub_callback, ethClient),
+			username_(username), password_(password) { }
 
 		bool send(const char* service, size_t slen, const char* payload, size_t plen) override;
 		bool connect() override;
@@ -71,10 +73,11 @@ class MqttTransport : public ServerAndPortTransport_base {
 		bool poll() override { return mqttClient_.loop(); }
 
 	private:
-		char* _username = NULL;
-		char* _password = NULL;
 		PubSubClient mqttClient_;
 		const DeviceInfo& deviceInfo_;
+		const char* username_ = NULL;
+		const char* password_ = NULL;
+
 		MqttTransport(const MqttTransport&);
 		MqttTransport& operator=(const MqttTransport&);
 

@@ -57,31 +57,23 @@ bool gv::avr::arduino::RestTransport::send(const char* service, size_t slen, con
 	return true;
 }
 
-/**************************************************************************
- * 
- **************************************************************************/
-bool gv::avr::arduino::MqttTransport::connect() {	
-	return connect(_username, _password);
-}
 
 /**************************************************************************
  * 
  **************************************************************************/
-bool gv::avr::arduino::MqttTransport::connect(const char* username, const char* password) {
+bool gv::avr::arduino::MqttTransport::connect() {
 	bool res;
 	Serial.println(F("MqttTransport: connecting... "));
 
 	char willTopic[TOPIC_NAME_SIZE];
 	sprintf_P(willTopic, PSTR("%s/%s%s"), GV_DEVICES, deviceInfo_.id(), GV_STATUS);
 
-	if(username != NULL && password != NULL) {
-		_username = const_cast<char*>(username);
-		_password = const_cast<char*>(password);
+	if(username_ != NULL && password_ != NULL) {
 			// AARGH!!! have to cast out of const because of mqtt lib!!
 		res = mqttClient_.connect(
 				const_cast<char*>(deviceInfo_.id()),			
-				const_cast<char*>(username), 
-				const_cast<char*>(password), 
+				const_cast<char*>(username_),
+				const_cast<char*>(password_),
 				willTopic, 
 				1, // QOS=1
 				0, // RETAIN=0
