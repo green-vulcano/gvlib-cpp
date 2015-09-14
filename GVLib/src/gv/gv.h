@@ -38,7 +38,20 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <Arduino.h>
+
+#ifdef DEBUG
+#  ifdef ARDUINO
+#    include <Arduino.h>
+#    define  GV_DEBUG(msg)   Serial.print(msg)
+#    define  GV_DEBUGLN(msg) Serial.println(msg)
+#  else
+#    define GV_DEBUG(msg)
+#    define GV_DEBUGLN(msg)
+#  endif
+#else
+#  define GV_DEBUG(msg)
+#  define GV_DEBUGLN(msg)
+#endif
 
 #define GV_DEVICES      "/devices"
 #define GV_SENSORS      "/sensors"
@@ -239,14 +252,13 @@ class Transport {
 	public:
 		virtual bool connected()  = 0;
 		virtual bool connect()    = 0;
-		virtual bool connect(const char *username, const char *password) = 0;
 		virtual bool disconnect() = 0;
 		virtual bool send(const char* service, size_t slen, const char* payload, size_t plen) = 0;
 
 		bool subscribe(const char* topic, CallbackPointer cb) {
 			if (handleSubscription(topic, cb)) {
-				Serial.print("Subscribe: ");
-				Serial.println(topic);
+				GV_DEBUG("Subscribe: ");
+				GV_DEBUGLN(topic);
 
 				Callback::add(topic, cb);
 				return true;

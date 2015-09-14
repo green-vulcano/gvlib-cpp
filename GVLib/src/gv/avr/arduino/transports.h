@@ -67,7 +67,6 @@ class MqttTransport : public ServerAndPortTransport_base {
 
 		bool send(const char* service, size_t slen, const char* payload, size_t plen) override;
 		bool connect() override;
-		bool connect(const char *username, const char *password) override;
 		bool connected() override { return mqttClient_.connected(); }
 		bool disconnect() override { mqttClient_.disconnect(); return true; };
 		bool poll() override { return mqttClient_.loop(); }
