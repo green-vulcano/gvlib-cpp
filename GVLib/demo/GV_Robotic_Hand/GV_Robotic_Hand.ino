@@ -129,7 +129,7 @@ void setup() {
   arrServoDesc[F_RING  ] = new ServoDesc("ACD00104",  "Ring",   4, CallbackDescriptor(cbFinger, F_RING),   gvComm);
   arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Little", 3, CallbackDescriptor(cbFinger, F_LITTLE), gvComm, true);
   
-  Serial.println("SETUP COMPLETED");
+  Serial.println(F("SETUP COMPLETED"));
 }
 
 /****************************************************
