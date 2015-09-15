@@ -54,16 +54,17 @@ struct ServoDesc {
     const char* name;
     const int   pin;
     Servo       servo;
+    boolean     reverse;
     
     ServoDesc(const char* id_, const char* name_, int pin_,
-	      gv::CallbackPointer callback, GVComm& gvComm)
-	: id(id_), name(name_), pin(pin_)
+	      gv::CallbackPointer callback, GVComm& gvComm, boolean reverse_=false)
+	: id(id_), name(name_), pin(pin_), reverse(reverse_)
     {    
 	servo.attach(pin);
 	gvComm.addActuator(id, name, "NUMERIC", callback);
     }
     
-    void move(int value, bool reverse)
+    void move(int value)
     {
 	if(reverse) {
 	    value = (-1*(value - 180));    
@@ -76,11 +77,6 @@ struct ServoDesc {
 
 ServoDesc* arrServoDesc[NUM_FINGERS]; // will be initialized in setup()
 
-int extractValueFromPayload(void* payload) {
-  StaticJsonBuffer<128> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject((const char*) payload);
-  return (int)root["value"];
-}
 
 /*****************************************************
    GVLIB callback functions: they have to respect the
@@ -89,7 +85,11 @@ int extractValueFromPayload(void* payload) {
    `setup()` phase.
 ******************************************************/
 gv::CallbackParam cbFinger(gv::CallbackParam payload) {
-  arrServoDesc[payload.param]->move(extractValueFromPayload(payload.data), false);
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+  int value = int(root["value"]);
+
+  arrServoDesc[payload.param]->move(value);
   return payload;
 }
 
@@ -125,9 +125,9 @@ void setup() {
   
   arrServoDesc[F_THUMB ] = new ServoDesc("ACD00101",  "Servo Thumb",  7, CallbackDescriptor(cbFinger, F_THUMB),  gvComm);
   arrServoDesc[F_INDEX ] = new ServoDesc("ACD00102",  "Servo Index",  6, CallbackDescriptor(cbFinger, F_INDEX),  gvComm);
-  arrServoDesc[F_MIDDLE] = new ServoDesc("ACD00103",  "Servo Middle", 5, CallbackDescriptor(cbFinger, F_MIDDLE), gvComm);
+  arrServoDesc[F_MIDDLE] = new ServoDesc("ACD00103",  "Servo Middle", 5, CallbackDescriptor(cbFinger, F_MIDDLE), gvComm, true);
   arrServoDesc[F_RING  ] = new ServoDesc("ACD00104",  "Servo Ring",   4, CallbackDescriptor(cbFinger, F_RING),   gvComm);
-  arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Servo Little", 3, CallbackDescriptor(cbFinger, F_LITTLE), gvComm);
+  arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Servo Little", 3, CallbackDescriptor(cbFinger, F_LITTLE), gvComm, true);
   
   Serial.println("SETUP COMPLETED");
 }
