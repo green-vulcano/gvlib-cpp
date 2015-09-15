@@ -100,7 +100,7 @@ void manageButton() {
   stateButton = !digitalRead(pinButton);
   
   if (stateButton == HIGH && oldStateButton == LOW) {
-    gvComm.sendData(pinButton, "{\"value\":true}");
+    gvComm.sendData("SED99901", "{\"value\":true}");
     oldStateButton = HIGH;
   }
   else if(stateButton == LOW && oldStateButton == HIGH) {

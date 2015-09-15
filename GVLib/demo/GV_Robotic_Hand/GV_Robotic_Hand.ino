@@ -99,7 +99,7 @@ gv::CallbackParam cbIndex(gv::CallbackParam payload) {
 }
 
 gv::CallbackParam cbMiddle(gv::CallbackParam payload) {
-  arrServoDesc[F_MIDDLE]->move(extractValueFromPayload(payload.data), false);
+  arrServoDesc[F_MIDDLE]->move(extractValueFromPayload(payload.data), true);
   return payload;
 }
 
@@ -109,7 +109,7 @@ gv::CallbackParam cbRing(gv::CallbackParam payload) {
 }
 
 gv::CallbackParam cbLittle(gv::CallbackParam payload) {
-  arrServoDesc[F_LITTLE]->move(extractValueFromPayload(payload.data), false);
+  arrServoDesc[F_LITTLE]->move(extractValueFromPayload(payload.data), true);
   return payload;
 }
 
