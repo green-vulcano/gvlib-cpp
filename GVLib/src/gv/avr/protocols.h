@@ -38,7 +38,7 @@ namespace gv {
 
 				bool addDevice() override;
 				bool addSensor(const char* id, const char* name, const char* type) override;
-				bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) override;
+				bool addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) override;
 				bool sendData(const char* id, const char* value) override;
 		};
 

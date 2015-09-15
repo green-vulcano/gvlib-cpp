@@ -163,9 +163,11 @@ class DeviceInfo {
  * Callback parameter type
  **************************************************************************/ 
 struct CallbackParam {
-	void* data;
-	size_t size;
+	void*   data;
+	size_t  size;
+	int     param;
 };
+
 
 /**************************************************************************
  * Callback function type.
@@ -174,6 +176,40 @@ struct CallbackParam {
  * as input.
  **************************************************************************/
 typedef CallbackParam (*CallbackPointer)(CallbackParam);
+
+/**
+ * Callback descriptor.
+ * This structure carries a callback function pointer and an (optional)
+ * integer parameter. Such parameter comes in handy if you use the same
+ * callback for multiple topics, in order to distinguish them easily
+ * without having to go through string comparison.
+ *
+ * Implicit conversion to and from `CallbackPointer` is provider for
+ * backward compatibility and simplicity (no need to explicitly create
+ * a `CallbackDescriptor` if the only thing you want is a `CallbackPointer`.
+ */
+struct CallbackDescriptor {
+	CallbackPointer function;
+	int             param;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param  fn    the function to call back.
+	 * @param  parm  an optional integer parameter that will be passed to the
+	 *               callback function. If not passed, defaults to `0`
+	 */
+	CallbackDescriptor(CallbackPointer fn, int parm=0)
+		: function(fn), param(parm) { }
+
+	/**
+	 * Implicit conversion to callback function pointer.
+	 */
+	operator CallbackPointer() const {
+		return function;
+	}
+};
+
 
 /**************************************************************************
  *	A class to hold callback delegates in GVLib.
@@ -185,11 +221,11 @@ class Callback {
 			Creates a new `Callback` instance, sets the corresponding values,
 			and returns a pointer to it.
 			@param  topic the topic on which this `Callback` shall listen.
-			@param  fn    the function to call back.
+			@param  desc  the callback descriptor.
 			@return a pointer to the newly created instance (or 0 if the callback
 			        was already found into the chain)
 		*/
-		static Callback* add(const char* topic, CallbackPointer fn);
+		static Callback* add(const char* topic, CallbackDescriptor desc);
 
 		/**
 			Removes a callback from the global chain.
@@ -221,14 +257,14 @@ class Callback {
 		static void dispose();
 
 	private:
-		char             topic_[TOPIC_NAME_SIZE];
+		char               topic_[TOPIC_NAME_SIZE];
 		//const char*      topic_;
-		Callback*        next_;
-		CallbackPointer  function_;
+		Callback*          next_;
+		CallbackDescriptor desc_;
 
-		static Callback* head_;
+		static Callback*   head_;
 
-		Callback(const char* topic, CallbackPointer fn);
+		Callback(const char* topic, CallbackDescriptor desc);
 
 		/**
 		 * Finds a `Callback` instance matching the given topic, and (optionally) function pointer.
@@ -255,7 +291,7 @@ class Transport {
 		virtual bool disconnect() = 0;
 		virtual bool send(const char* service, size_t slen, const char* payload, size_t plen) = 0;
 
-		bool subscribe(const char* topic, CallbackPointer cb) {
+		bool subscribe(const char* topic, CallbackDescriptor cb, int param=0) {
 			if (handleSubscription(topic, cb)) {
 				GV_DEBUG("Subscribe: ");
 				GV_DEBUGLN(topic);
@@ -289,7 +325,7 @@ class Protocol {
 
 		virtual bool addDevice() = 0;
 		virtual bool addSensor(const char* id, const char* name, const char* type) = 0;
-		virtual bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) = 0;
+		virtual bool addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) = 0;
 		virtual bool sendData(const char* id, const char* value) = 0;
 
 		virtual ~Protocol() { }
@@ -306,7 +342,7 @@ class GVComm {
 	public:
 		GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol);
 
-		bool addCallback(const char* actuatorId, CallbackPointer fn);
+		bool addCallback(const char* actuatorId, CallbackPointer fn, int param=0);
 
 		bool addDevice() { 
 			return protocol_.addDevice(); 
@@ -316,7 +352,7 @@ class GVComm {
 			return protocol_.addSensor(id, name, type); 
 		}
 
-		bool addActuator(const char* id, const char* name, const char* type, CallbackPointer fn);
+		bool addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc);
 
 		bool sendData(const char* id, const char* value) { 
 			return protocol_.sendData(id, value); 

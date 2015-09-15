@@ -73,7 +73,7 @@ bool Protocol_IOT_v1::addSensor(const char* id, const char* name, const char* ty
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) {
+bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) {
 	Buffer b_topic;
 	b_topic.add(GV_DEVICES);
 	b_topic.add("/");
@@ -84,7 +84,7 @@ bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* 
 	b_topic.add(GV_INPUT);
 
 	// subscribes function to topic
-	transport_.subscribe(b_topic.get(), fn);
+	transport_.subscribe(b_topic.get(), desc);
 
 	Buffer b;
 	b.add(PSTR("{\"nm\":\""), true);

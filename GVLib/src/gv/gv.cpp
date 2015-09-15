@@ -67,7 +67,7 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::addCallback(const char* actuatorId, CallbackPointer fn) {
+	bool GVComm::addCallback(const char* actuatorId, CallbackPointer fn, int param) {
 		gv::avr::Buffer b;
 		b.add(GV_DEVICES);
 		b.add("/");
@@ -79,14 +79,14 @@ namespace gv {
 
 		const char* topic = b.get();
 
-		return transport_.subscribe(topic, fn);
+		return transport_.subscribe(topic, fn, param);
 	}
 
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::addActuator(const char* id, const char* name, const char* type, CallbackPointer fn) {		
-		return protocol_.addActuator(id, name, type, fn);
+	bool GVComm::addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) {
+		return protocol_.addActuator(id, name, type, desc);
 	}
 
 	/**************************************************************************
@@ -104,8 +104,8 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	Callback::Callback(const char* topic, CallbackPointer fn) :
-		next_(NULL), function_(fn) {
+	Callback::Callback(const char* topic, CallbackDescriptor desc) :
+		next_(NULL), desc_(desc) {
 
 		strncpy(topic_, topic, TOPIC_NAME_SIZE);
 	}
@@ -113,8 +113,8 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	Callback* Callback::add(const char* topic, CallbackPointer fn) {
-		Callback* cb = new Callback(topic, fn);
+	Callback* Callback::add(const char* topic, CallbackDescriptor desc) {
+		Callback* cb = new Callback(topic, desc);
 
 		if (head_) {
 			Callback* ptr = head_;
@@ -157,8 +157,9 @@ namespace gv {
 		Callback *ptr = head_, *prev;
 
 		while (find_(topic, NULL, &ptr, &prev)) {
-			if (ptr->function_) {
-				param = ptr->function_(param);
+			if (ptr->desc_.function) {
+				param.param = ptr->desc_.param;
+				param = ptr->desc_.function(param);
 			}
 
 			ptr = ptr->next_;
@@ -176,7 +177,7 @@ namespace gv {
 
 		while (p) {
 			if (!strcmp(p->topic_, topic)) {
-				if (fn != NULL && fn != p->function_) {
+				if (fn != NULL && fn != p->desc_.function) {
 					continue;
 				}
 
