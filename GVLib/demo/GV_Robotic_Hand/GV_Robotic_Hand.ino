@@ -57,7 +57,7 @@ struct ServoDesc {
     boolean     reverse;
     
     ServoDesc(const char* id_, const char* name_, int pin_,
-	      gv::CallbackPointer callback, GVComm& gvComm, boolean reverse_=false)
+	      gv::CallbackDescriptor callback, GVComm& gvComm, boolean reverse_=false)
 	: id(id_), name(name_), pin(pin_), reverse(reverse_)
     {    
 	servo.attach(pin);
