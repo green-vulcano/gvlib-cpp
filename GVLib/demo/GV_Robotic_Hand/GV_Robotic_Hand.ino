@@ -123,11 +123,11 @@ void setup() {
 
   Serial.println(F("Sending Actuators Configuration: "));
   
-  arrServoDesc[F_THUMB ] = new ServoDesc("ACD00101",  "Servo Thumb",  7, CallbackDescriptor(cbFinger, F_THUMB),  gvComm);
-  arrServoDesc[F_INDEX ] = new ServoDesc("ACD00102",  "Servo Index",  6, CallbackDescriptor(cbFinger, F_INDEX),  gvComm);
-  arrServoDesc[F_MIDDLE] = new ServoDesc("ACD00103",  "Servo Middle", 5, CallbackDescriptor(cbFinger, F_MIDDLE), gvComm, true);
-  arrServoDesc[F_RING  ] = new ServoDesc("ACD00104",  "Servo Ring",   4, CallbackDescriptor(cbFinger, F_RING),   gvComm);
-  arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Servo Little", 3, CallbackDescriptor(cbFinger, F_LITTLE), gvComm, true);
+  arrServoDesc[F_THUMB ] = new ServoDesc("ACD00101",  "Thumb",  7, CallbackDescriptor(cbFinger, F_THUMB),  gvComm);
+  arrServoDesc[F_INDEX ] = new ServoDesc("ACD00102",  "Index",  6, CallbackDescriptor(cbFinger, F_INDEX),  gvComm);
+  arrServoDesc[F_MIDDLE] = new ServoDesc("ACD00103",  "Middle", 5, CallbackDescriptor(cbFinger, F_MIDDLE), gvComm, true);
+  arrServoDesc[F_RING  ] = new ServoDesc("ACD00104",  "Ring",   4, CallbackDescriptor(cbFinger, F_RING),   gvComm);
+  arrServoDesc[F_LITTLE] = new ServoDesc("ACD00105",  "Little", 3, CallbackDescriptor(cbFinger, F_LITTLE), gvComm, true);
   
   Serial.println("SETUP COMPLETED");
 }
