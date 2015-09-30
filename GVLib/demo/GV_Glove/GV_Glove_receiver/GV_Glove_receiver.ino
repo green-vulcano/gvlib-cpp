@@ -33,6 +33,8 @@ const int port = 1883;
 const char device_id[] = "GVDEV002";
 const char device_name[] = "GV Glove";
 
+int check = -1;
+
 /****************************************************
  * SoftwareSerial for debug
  ****************************************************/
@@ -86,46 +88,49 @@ void loop()
       BTserial.println(Serial.parseInt());
       
       int value = Serial.parseInt();
-      String finger = deduceFinger(value);
       
-      StaticJsonBuffer<200> jsonBuffer;
-      JsonObject& root = jsonBuffer.createObject();
-      char buffer[128];
-      char* data(buffer);
-      
-      switch(finger.toInt()) {
-	case 1:
-	  value = value - 1000;
-	  root["value"] = value;
-	  root.printTo(buffer, sizeof(buffer));  
-	  gvComm.sendData("SED00201", data);
-	  break;
-	case 2:
-	  value = value - 2000;
-	  root["value"] = value;
-	  root.printTo(buffer, sizeof(buffer));  
-	  gvComm.sendData("SED00202", data);
-	  break;
-	case 3:
-	  value = value - 3000;
-	  root["value"] = value;
-	  root.printTo(buffer, sizeof(buffer));  
-	  gvComm.sendData("SED00203", data);
-	  break;
-	case 4:
-	  value = value - 4000;
-	  root["value"] = value;
-	  root.printTo(buffer, sizeof(buffer));  
-	  gvComm.sendData("SED00204", data);
-	  break;
-	case 5:
-	  value = value - 5000;
-	  root["value"] = value;
-	  root.printTo(buffer, sizeof(buffer));  
-	  gvComm.sendData("SED00205", data);
-	  break;  
+      if (value != check) {
+        check = value;
+	String finger = deduceFinger(value);
+	
+	StaticJsonBuffer<200> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	char buffer[128];
+	char* data(buffer);
+	
+	switch(finger.toInt()) {
+	  case 1:
+	    value = value - 1000;
+	    root["value"] = value;
+	    root.printTo(buffer, sizeof(buffer));  
+	    gvComm.sendData("SED00201", data);
+	    break;
+	  case 2:
+	    value = value - 2000;
+	    root["value"] = value;
+	    root.printTo(buffer, sizeof(buffer));  
+	    gvComm.sendData("SED00202", data);
+	    break;
+	  case 3:
+	    value = value - 3000;
+	    root["value"] = value;
+	    root.printTo(buffer, sizeof(buffer));  
+	    gvComm.sendData("SED00203", data);
+	    break;
+	  case 4:
+	    value = value - 4000;
+	    root["value"] = value;
+	    root.printTo(buffer, sizeof(buffer));  
+	    gvComm.sendData("SED00204", data);
+	    break;
+	  case 5:
+	    value = value - 5000;
+	    root["value"] = value;
+	    root.printTo(buffer, sizeof(buffer));  
+	    gvComm.sendData("SED00205", data);
+	    break;  
+	}
       }
-      
     } else {
       BTserial.println("Serial is not available");
       delay(1000);
