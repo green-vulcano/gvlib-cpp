@@ -26,8 +26,8 @@
 using namespace gv;
 using gv::CallbackParam;
 
-const uint8_t myIp_[] = {10, 100, 80, 23};
-byte mac[] = { 0x00, 0x13, 0x20, 0xFF, 0x11, 0x00 }; 
+const uint8_t myIp_[] = {10, 100, 80, 31};
+byte mac[] = { 0xFA, 0x5F, 0x67, 0x5F, 0xBD, 0x85 }; 
 const uint8_t serverIp_[] = {10, 100, 60, 103};
 const int port = 1883;
 const char device_id[] = "GVDEV002";
@@ -90,7 +90,7 @@ void loop()
       
       StaticJsonBuffer<200> jsonBuffer;
       JsonObject& root = jsonBuffer.createObject();
-      char buffer[256];
+      char buffer[128];
       char* data(buffer);
       
       switch(finger.toInt()) {
