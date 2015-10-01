@@ -323,7 +323,7 @@ class Protocol {
 		Protocol(const DeviceInfo& info, Transport& transport) :
 			transport_(transport), deviceInfo_(info) { }
 
-		virtual bool addDevice(CallbackDescriptor desc) = 0;
+		virtual bool addDevice(CallbackDescriptor desc=NULL) = 0;
 		virtual bool addSensor(const char* id, const char* name, const char* type) = 0;
 		virtual bool addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) = 0;
 		virtual bool sendData(const char* id, const char* value) = 0;
@@ -344,7 +344,7 @@ class GVComm {
 
 		// bool addCallback(const char* actuatorId, CallbackPointer fn, int param=0);
 
-		bool addDevice(CallbackDescriptor desc);
+		bool addDevice(CallbackDescriptor desc=NULL);
 		
 		bool addSensor(const char* id, const char* name, const char* type) { 
 			return protocol_.addSensor(id, name, type); 
