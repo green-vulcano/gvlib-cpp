@@ -36,7 +36,7 @@ namespace gv {
 				Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
 					gv::protocols::Protocol_IOT_v1(info, transport) { }
 
-				bool addDevice() override;
+				bool addDevice(CallbackDescriptor desc) override;
 				bool addSensor(const char* id, const char* name, const char* type) override;
 				bool addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) override;
 				bool sendData(const char* id, const char* value) override;

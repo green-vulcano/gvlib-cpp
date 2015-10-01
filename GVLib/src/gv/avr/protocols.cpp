@@ -35,7 +35,16 @@ namespace gv { namespace avr {
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::addDevice() {
+bool Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
+	Buffer b_topic;
+	b_topic.add(GV_DEVICES);
+	b_topic.add("/");
+	b_topic.add(deviceInfo_.id());
+	b_topic.add(GV_INPUT);
+
+	// subscribes function to topic
+	transport_.subscribe(b_topic.get(), desc);
+
 	Buffer b;
 	b.add(PSTR("{\"nm\":\""), true);
 	b.add(deviceInfo_.name());
