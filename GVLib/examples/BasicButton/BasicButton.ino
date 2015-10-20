@@ -40,6 +40,20 @@ int stateButton = LOW;
 int oldStateButton = LOW;
 
 /****************************************************
+ * Callback for basic device operation
+ ***************************************************/
+gv::CallbackParam cbDevice(gv::CallbackParam payload) {
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+  
+  if (root["value"] == "ON") {
+    modality = 1;
+  } else if (root["value"] == "OFF") {
+    modality = 0;
+  }
+}
+
+/****************************************************
    GVLIB initialization: prefer static, so you 
    get little or no surprises (e.g. compared to when
    using "dynamic" memory.
@@ -80,7 +94,7 @@ void setup() {
    * Then you declare yourself
    *****************************/
   Serial.println(F("Sending Device Information: "));
-  gvComm.addDevice();
+  gvComm.addDevice(cbDevice);
 
   /*************************************
    * Then you declare your sensors

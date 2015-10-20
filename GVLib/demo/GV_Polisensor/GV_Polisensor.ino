@@ -79,6 +79,20 @@ int valueRotary = -1;
 unsigned long timeRotary = 0;
 
 /****************************************************
+ * Callback for basic device operation
+ ***************************************************/
+gv::CallbackParam cbDevice(gv::CallbackParam payload) {
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+  
+  if (root["value"] == "ON") {
+    modality = 1;
+  } else if (root["value"] == "OFF") {
+    modality = 0;
+  }
+}
+
+/****************************************************
    GVLIB initialization: prefer static, so you 
    get little or no surprises (e.g. compared to when
    using "dynamic" memory.
@@ -112,7 +126,7 @@ void setup() {
   digitalWrite(pinStatusLed, HIGH);
   
   Serial.print(F("Sending Device Information: "));
-  gvComm.addDevice();
+  gvComm.addDevice(cbDevice);
 
   Serial.print(F("Sending Sensors Configuration: "));
   gvComm.addSensor("SED00301", "Distance Sensor", "NUMERIC");

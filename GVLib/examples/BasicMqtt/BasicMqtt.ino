@@ -33,6 +33,20 @@ const char device_name[] = "GV Device Test";
 byte mac[] = { 0xFA, 0x5F, 0x67, 0x5F, 0xBD, 0x85 }; 
 
 
+/****************************************************
+ * Callback for basic device operation
+ ***************************************************/
+gv::CallbackParam cbDevice(gv::CallbackParam payload) {
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+  
+  if (root["value"] == "ON") {
+    modality = 1;
+  } else if (root["value"] == "OFF") {
+    modality = 0;
+  }
+}
+
 /*****************************************************
    GVLIB callback functions: they have to respect the
    prototype `CallbackParam function (CallbackParam p)`
@@ -87,7 +101,7 @@ void setup() {
    * Then you declare yourself
    *****************************/
   Serial.println(F("Sending Device Information: "));
-  gvComm.addDevice();
+  gvComm.addDevice(cbDevice);
 
   /*************************************
    * Then you declare your sensors...
