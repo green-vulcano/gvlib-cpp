@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-#include <SoftwareSerial.h>
+
+//#include <SoftwareSerial.h>
 
 /****************************************************
  * SoftwareSerial for debug
  ****************************************************/
-SoftwareSerial BTserial(2, 3); // RX | TX
+//SoftwareSerial BTserial(2, 3); // RX | TX
 
 /****************************************************
  * Sensors and actuators
@@ -33,73 +33,88 @@ int middlePin      = A2;
 int ringPin        = A3;
 int littlePin      = A4;
 
-const int DELTA    = 30;
-int value          = -1;
- 
+const int DELTA_VALUE = 1;
+int value_thumb    = -1;
+int value_index    = -1;
+int value_middle   = -1;
+int value_ring     = -1;
+int value_little   = -1;
+
+const int DELTA_TIME = 200;
+unsigned long time_thumb = 0;
+unsigned long time_index = 0; 
+unsigned long time_middle = 0;
+unsigned long time_ring = 0;
+unsigned long time_little = 0;
+
 /****************************************************
  *  Arduino standard setup function
  ****************************************************/
-void setup() 
-{
-    Serial.begin(9600);
-    BTserial.begin(9600);
-
-    BTserial.println("--- Start reading flex sensors values ----");
+void setup() {
+  Serial.begin(9600);
 }
 
 /****************************************************
  *  Arduino standard loop function
  ****************************************************/
-void loop() 
-{   
-    // for debug
-    BTserial.print("Value read thumb finger: ");
-    BTserial.println(analogRead(thumbPin));
-    BTserial.print("Value read index finger: ");
-    BTserial.println(analogRead(indexPin));
-    BTserial.print("Value read middle finger: ");
-    BTserial.println(analogRead(middlePin));
-    BTserial.print("Value read ring finger: ");
-    BTserial.println(analogRead(ringPin));
-    BTserial.print("Value read little finger: ");
-    BTserial.println(analogRead(littlePin));
-    
-    // manage the data 
-    filterValue(thumbPin);
-    filterValue(indexPin);
-    filterValue(middlePin);
-    filterValue(ringPin);
-    filterValue(littlePin); 
+void loop() {
+  // manage the data
+  sendData(filterValue(thumbPin));
+  sendData(filterValue(indexPin));
+  sendData(filterValue(middlePin));
+  sendData(filterValue(ringPin));
+  sendData(filterValue(littlePin));
 }
 
+/************************************************
+ * Send data function
+ ************************************************/
+void sendData(int data) {
+  if(data > 0) {
+    Serial.println(data);
+  }
+}
 
 /************************************************
- *  Function which it increases the payload of 
- *  a significant value and sends the data on 
+ *  Function which it increases the payload of
+ *  a significant value and sends the data on
  *  the serial depending on the assigned pin.
- * 
- *  In this example the data traveling from the 
- *  glove toward a receiver, connected with 
+ *
+ *  In this example the data traveling from the
+ *  glove toward a receiver, connected with
  *  GreenVulcano, via bluetooth
  ************************************************/
-void filterValue(int pin) {
-  int flexPosition = int(analogRead(pin) / DELTA) * DELTA;
+int filterValue(int pin) {
+  int flexPosition = int(analogRead(pin) / DELTA_VALUE) * DELTA_VALUE;  
   int payload = 0;
-  if (flexPosition != value) {
-    value = flexPosition;
-    if (pin == thumbPin) {
+  unsigned long current_time = millis();
+
+    if((current_time >= time_thumb + DELTA_TIME) && (pin == thumbPin) && (flexPosition != value_thumb)) {
+      value_thumb = flexPosition;
       payload = flexPosition + 1000;
-    } else if (pin == indexPin) {
-      payload = flexPosition + 2000;
-    } else if (pin == middlePin) {
-      payload = flexPosition + 3000;
-    } else if (pin == ringPin) {
-      payload = flexPosition + 4000;
-    } else if (pin == littlePin) {
-      payload = flexPosition + 5000;
+      time_thumb = current_time;
+    }       
+    else if((current_time >= time_index + DELTA_TIME) && (pin == indexPin) && (flexPosition != value_index)) {
+      value_index = flexPosition;
+      payload = flexPosition + 2000;      
+      time_index = current_time;
     }
-    Serial.println(payload);
-  }
+    else if((current_time >= time_middle + DELTA_TIME) && (pin == middlePin) && (flexPosition != value_middle)) {
+      value_middle = flexPosition;
+      payload = flexPosition + 3000;      
+      time_middle = current_time;
+    }
+    else if((current_time >= time_ring + DELTA_TIME) && (pin == ringPin) && (flexPosition != value_ring)) {
+      value_ring = flexPosition;
+      payload = flexPosition + 4000;
+      time_ring = current_time;
+    }
+    else if((current_time >= time_little + DELTA_TIME) && (pin == littlePin) && (flexPosition != value_little)) {
+      value_little = flexPosition;
+      payload = flexPosition + 5000;      
+      time_little = current_time;
+    }
   
+  return payload;
 }
 
