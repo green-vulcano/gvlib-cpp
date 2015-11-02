@@ -29,8 +29,8 @@ using gv::CallbackParam;
 
 const uint8_t myIp_[] = {10, 100, 80, 31};
 byte mac[] = { 0xFA, 0x5F, 0x67, 0x5F, 0xBD, 0x85 };
-const uint8_t serverIp_[] = {10, 100, 80, 39};
-//const uint8_t serverIp_[] = {10, 100, 60, 103};
+//const uint8_t serverIp_[] = {10, 100, 80, 39};
+const uint8_t serverIp_[] = {10, 100, 60, 103};
 const int port = 1883;
 const char device_id[] = "GVDEV002";
 const char device_name[] = "GV Glove";
@@ -49,11 +49,34 @@ int check_little = -1;
 
 int DELTA_VALUE = 1;
 
+int modality = 1;
+const char* ON = "ON";
+const char* OFF = "OFF";
+
 
 /****************************************************
  * SoftwareSerial for debug
  ****************************************************/
 //SoftwareSerial BTserial(2, 3); // RX | TX
+
+/****************************************************
+ * Callback for basic device operation
+ ***************************************************/
+gv::CallbackParam cbDevice(gv::CallbackParam payload) {
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+
+  Serial.println("CALLBACK DEVICE CALLED");
+  const char* root_value = (const char*)root["value"];
+  
+  if (strcmp(root_value,ON) == 0) {
+    Serial.println("Modality 1");
+    modality = 1;
+  } else if (strcmp(root_value,OFF) == 0) {
+    Serial.println("Modality 0");
+    modality = 0;
+  }
+}
 
 /****************************************************
    GVLIB initialization: prefer static, so you

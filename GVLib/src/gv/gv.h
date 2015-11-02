@@ -58,7 +58,7 @@
 #define GV_ACTUATORS    "/actuators"
 #define GV_SENSOR_DATA  "/output"
 #define GV_STATUS       "/status"
-#define GV_INPUT		"/input"
+#define GV_INPUT	"/input"
 
 #define GV_PAYLOAD_STATUS_OFFLINE "{\"st\":false}"
 #define GV_PAYLOAD_STATUS_ONLINE "{\"st\":true}"

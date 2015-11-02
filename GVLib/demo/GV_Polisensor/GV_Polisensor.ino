@@ -28,7 +28,8 @@ using gv::CallbackParam;
 
 const uint8_t myIp_[] = {10, 100, 80, 32};
 byte mac[] = { 0xFA, 0x5F, 0x67, 0x5F, 0xBD, 0x85 }; 
-const uint8_t serverIp_[] = {10, 100, 60, 103};
+//const uint8_t serverIp_[] = {10, 100, 60, 103};
+const uint8_t serverIp_[] = {10, 100, 80, 39};
 const int port = 1883;
 const char device_id[] = "GVDEV003";
 const char device_name[] = "GV Polisensor";
@@ -37,6 +38,9 @@ const char device_name[] = "GV Polisensor";
  * Sensors and actuators
  ****************************************************/
 const int DELTA = 10;
+int modality = 1;
+const char* ON = "ON";
+const char* OFF = "OFF";
 
 int pinStatusLed       = A0;
 int pinPotenziometer   = A1;
@@ -60,11 +64,11 @@ int TIMEOUT = 6000;
 int stateButtonGreen = LOW;
 int oldStateButtonGreen = LOW;
 
-// RED BUTTON
+//// RED BUTTON
 int stateButtonRed = LOW;
 int oldStateButtonRed = LOW;
 
-// SWITCH
+//// SWITCH
 int stateSwitch = LOW;
 int oldStateSwitch = LOW;
 
@@ -82,12 +86,17 @@ unsigned long timeRotary = 0;
  * Callback for basic device operation
  ***************************************************/
 gv::CallbackParam cbDevice(gv::CallbackParam payload) {
-  StaticJsonBuffer<128> jsonBuffer;
+  StaticJsonBuffer<64> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
+
+  Serial.println("CALLBACK DEVICE CALLED");
+  const char* root_value = (const char*)root["value"];
   
-  if (root["value"] == "ON") {
+  if (strcmp(root_value,ON) == 0) {
+    Serial.println("Modality 1");
     modality = 1;
-  } else if (root["value"] == "OFF") {
+  } else if (strcmp(root_value,OFF) == 0) {
+    Serial.println("Modality 0");
     modality = 0;
   }
 }
@@ -126,7 +135,7 @@ void setup() {
   digitalWrite(pinStatusLed, HIGH);
   
   Serial.print(F("Sending Device Information: "));
-  gvComm.addDevice(cbDevice);
+  gvComm.addDevice();
 
   Serial.print(F("Sending Sensors Configuration: "));
   gvComm.addSensor("SED00301", "Distance Sensor", "NUMERIC");
@@ -336,13 +345,19 @@ void manageRotary() {
  *  Arduino standard loop function
  ****************************************************/
 void loop() {
-  manageDistance();
-  manageButtonGreen();
-  manageButtonRed();
-  manageSwitch();
-  managePotenziometer();
-  manageSlider();
-  manageRotary();  
+
+  if (modality == 1) {
+    manageDistance();
+    manageButtonGreen();
+    manageButtonRed();
+    manageSwitch();
+    managePotenziometer();
+    manageSlider();
+    manageRotary();
+  } 
+  else {
+    //Serial.println("Modalità OFF");  
+  }
 
   if(!mqttTransport.connected()) {
     digitalWrite(pinStatusLed, LOW);

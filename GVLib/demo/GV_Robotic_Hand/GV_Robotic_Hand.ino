@@ -36,6 +36,8 @@ const char device_id[] = "GVDEV001";
 const char device_name[] = "GV Robotic Hand";
 
 int modality = 1;
+const char* ON = "ON";
+const char* OFF = "OFF";
 
 Servo servo_thumb;
 Servo servo_index_finger;
@@ -55,17 +57,16 @@ int pin_little_finger = 3;
 gv::CallbackParam cbDevice(gv::CallbackParam payload) {
   StaticJsonBuffer<128> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
-  Serial.print(F("Device payload: "));
-  Serial.println((char*)payload.data);
-  Serial.print("VALUE: ");
-  Serial.println(int(root["value"]));
-  if (root["value"] == "ON") {
+
+  Serial.println("CALLBACK DEVICE CALLED");
+  const char* root_value = (const char*)root["value"];
+  
+  if (strcmp(root_value,ON) == 0) {
+    Serial.println("Modality 1");
     modality = 1;
-  } else if (root["value"] == "OFF") {
+  } else if (strcmp(root_value,OFF) == 0) {
+    Serial.println("Modality 0");
     modality = 0;
-  } else if (root["value"] == "DEMO") {
-    Serial.println("Mode Demo");
-    modality = 2;
   }
 }
 
