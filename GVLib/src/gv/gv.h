@@ -58,14 +58,14 @@
 #define GV_ACTUATORS    "/actuators"
 #define GV_SENSOR_DATA  "/output"
 #define GV_STATUS       "/status"
-#define GV_INPUT	"/input"
+#define GV_INPUT		"/input"
 
 #define GV_PAYLOAD_STATUS_OFFLINE "{\"st\":false}"
 #define GV_PAYLOAD_STATUS_ONLINE "{\"st\":true}"
 
 #define BUFFER_SIZE 160
 
-#define DEVICE_ID_SIZE 10
+#define DEVICE_ID_SIZE 8 // 10
 #define DEVICE_NAME_SIZE 20
 #define HOST_SIZE 20
 #define TOPIC_NAME_SIZE 44

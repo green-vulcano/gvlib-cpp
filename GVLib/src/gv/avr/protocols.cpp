@@ -59,7 +59,7 @@ bool Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
 
 	const char* payload = b.get();
 
-	char srv[80];
+	char srv[20]; // 80
 	int srvlen = sprintf_P(srv, PSTR("%s/%s"), GV_DEVICES, deviceInfo_.id());
 
 	return transport_.send(srv, srvlen, b.get(), b.len());
@@ -76,7 +76,7 @@ bool Protocol_IOT_v1::addSensor(const char* id, const char* name, const char* ty
 	b.add(type);
 	b.add(PSTR("\"}"), true);
 
-	char srv[80];
+	char srv[40];
 	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%s"), GV_DEVICES, deviceInfo_.id(), GV_SENSORS, id);
 
 	return transport_.send(srv, srvlen, b.get(), b.len());
@@ -105,7 +105,7 @@ bool Protocol_IOT_v1::addActuator(const char* id, const char* name, const char* 
 	b.add(type);
 	b.add(PSTR("\"}"), true);
 
-	char srv[80];
+	char srv[37]; // 80
 	int srvlen = sprintf_P(srv, PSTR("%s/%s%s/%s"), GV_DEVICES, deviceInfo_.id(), GV_ACTUATORS, id);
 	
 	return transport_.send(srv, srvlen, b.get(), b.len());

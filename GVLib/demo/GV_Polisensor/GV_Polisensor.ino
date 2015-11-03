@@ -86,16 +86,16 @@ unsigned long timeRotary = 0;
  * Callback for basic device operation
  ***************************************************/
 gv::CallbackParam cbDevice(gv::CallbackParam payload) {
-  StaticJsonBuffer<64> jsonBuffer;
+  StaticJsonBuffer<32> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject((const char*) payload.data);
 
   Serial.println("CALLBACK DEVICE CALLED");
   const char* root_value = (const char*)root["value"];
-  
-  if (strcmp(root_value,ON) == 0) {
+
+  if (strcmp(root_value, ON) == 0) {
     Serial.println("Modality 1");
     modality = 1;
-  } else if (strcmp(root_value,OFF) == 0) {
+  } else if (strcmp(root_value, OFF) == 0) {
     Serial.println("Modality 0");
     modality = 0;
   }
@@ -134,10 +134,10 @@ void setup() {
   mqttTransport.connect();
   digitalWrite(pinStatusLed, HIGH);
   
-  Serial.print(F("Sending Device Information: "));
-  gvComm.addDevice();
+  Serial.println(F("Sending Device Information: "));
+  gvComm.addDevice(cbDevice);
 
-  Serial.print(F("Sending Sensors Configuration: "));
+  Serial.println(F("Sending Sensors Configuration: "));
   gvComm.addSensor("SED00301", "Distance Sensor", "NUMERIC");
   gvComm.addSensor("SED00302", "Green Button", "MONOSTABLE");
   gvComm.addSensor("SED00303", "Red Button", "MONOSTABLE");
@@ -175,11 +175,11 @@ void manageDistance() {
       if(distance != valueDistance) {
         valueDistance = distance;
         
-        StaticJsonBuffer<200> jsonBuffer;
+        StaticJsonBuffer<32> jsonBuffer;
         JsonObject& root = jsonBuffer.createObject();      
         
         root["value"] = distance;
-        char buffer[256];
+        char buffer[64];
         root.printTo(buffer, sizeof(buffer));  
         char* data(buffer);
     
@@ -244,18 +244,17 @@ void managePotenziometer() {
 
   if(value != valuePoteziometer) {
     valuePoteziometer = value;
-    StaticJsonBuffer<200> jsonBuffer;
+    StaticJsonBuffer<32> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();      
     
     root["value"] = value;
-    char buffer[256];
+    char buffer[64];
     root.printTo(buffer, sizeof(buffer));  
     char* data(buffer);
     
     gvComm.sendData("SED00304", data);    
   }
 }
-
 
 /****************************************************
  *  
@@ -302,14 +301,14 @@ void manageSlider() {
 
   if(value != valueSlider) {
     valueSlider = value;
-    StaticJsonBuffer<200> jsonBuffer;
+    StaticJsonBuffer<32> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();      
 
     int step_value = getStep(value);
     
     root["value"] = value;
     root["step"]  = step_value;
-    char buffer[256];
+    char buffer[64];
     root.printTo(buffer, sizeof(buffer));  
     char* data(buffer);
 
@@ -328,11 +327,11 @@ void manageRotary() {
   
     if(value != valueRotary) {    
       valueRotary = value;
-      StaticJsonBuffer<200> jsonBuffer;
+      StaticJsonBuffer<32> jsonBuffer;
       JsonObject& root = jsonBuffer.createObject();      
       
       root["value"] = value;
-      char buffer[256];
+      char buffer[64];
       root.printTo(buffer, sizeof(buffer));  
       char* data(buffer);
     
@@ -355,9 +354,9 @@ void loop() {
     manageSlider();
     manageRotary();
   } 
-  else {
-    //Serial.println("Modalità OFF");  
-  }
+//  else {
+//    //Serial.println("Modalità OFF");  
+//  }
 
   if(!mqttTransport.connected()) {
     digitalWrite(pinStatusLed, LOW);
