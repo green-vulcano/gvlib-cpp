@@ -92,7 +92,7 @@ bool gv::avr::arduino::MqttTransport::connect() {
 
 	if(res) {
 		// status with RETAIN=1
-		mqttClient_.publish(willTopic, (uint8_t*)GV_PAYLOAD_STATUS_ONLINE, sizeof(GV_PAYLOAD_STATUS_ONLINE), 1);
+		mqttClient_.publish(willTopic, (uint8_t*)GV_PAYLOAD_STATUS_ONLINE, sizeof(GV_PAYLOAD_STATUS_ONLINE)-1, 1);
 	}
 
 	return res;
