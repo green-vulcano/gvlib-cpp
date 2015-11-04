@@ -76,7 +76,7 @@ bool gv::avr::arduino::MqttTransport::connect() {
 				const_cast<char*>(password_),
 				willTopic, 
 				1, // QOS=1
-				0, // RETAIN=0
+				1, // RETAIN=1
 				const_cast<char*>(GV_PAYLOAD_STATUS_OFFLINE));
 	}
 	else {
@@ -84,14 +84,15 @@ bool gv::avr::arduino::MqttTransport::connect() {
 				const_cast<char*>(deviceInfo_.id()),			
 				willTopic, 
 				1, // QOS=1
-				0, // RETAIN=0
+				1, // RETAIN=1
 				const_cast<char*>(GV_PAYLOAD_STATUS_OFFLINE));		
 	}
 
 	Serial.println(res ? F("Connection done.") :  F("Connection failed!"));
 
 	if(res) {
-		mqttClient_.publish(willTopic, (uint8_t*)GV_PAYLOAD_STATUS_ONLINE, sizeof(GV_PAYLOAD_STATUS_ONLINE));
+		// status with RETAIN=1
+		mqttClient_.publish(willTopic, (uint8_t*)GV_PAYLOAD_STATUS_ONLINE, sizeof(GV_PAYLOAD_STATUS_ONLINE), 1);
 	}
 
 	return res;
