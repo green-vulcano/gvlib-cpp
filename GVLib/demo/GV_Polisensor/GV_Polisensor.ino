@@ -354,9 +354,9 @@ void loop() {
     manageSlider();
     manageRotary();
   } 
-//  else {
-//    //Serial.println("Modalità OFF");  
-//  }
+  else {
+    // Serial.println("Modalità OFF");  
+  }
 
   if(!mqttTransport.connected()) {
     digitalWrite(pinStatusLed, LOW);

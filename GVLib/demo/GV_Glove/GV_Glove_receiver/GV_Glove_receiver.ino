@@ -106,7 +106,7 @@ void setup()
  ****************************************************/
 void loop()
 {
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0 && modality == 1) {
     int value = Serial.parseInt();
     int finger = deduceFinger(value);
     char* sensor_id = "";
