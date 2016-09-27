@@ -19,16 +19,19 @@
 
 /*
  * GreenVulcano Communication Library for IoT - C++ for Micro-Controllers
- * gvlib_arduino.h
+ * gvlib_platconfig.h
  *
- * Created on: Aug 6, 2015
- *     Author: Domenico Barra <eisenach@gmail.com>
- * 
- * This file is a "catch-all" header for the Arduino build toolkit: you
- * normally just have to include this file in order to use the library.
+ * This file is a generic platform configurator for the C++ GreenVulcano Library.
+ * All compilation units need to include this file *first* in order to have specific
+ * platform-dependent tweaks enabled or disabled.
  */
 
-#include "gv/gv.h"
-#include "gv/avr/arduino/gv.h"
-#include "gv/avr/arduino/transports.h"
-#include "gv/avr/protocols.h"
+#ifndef GVLIB_PLATCONFIG_H
+ #define GVLIB_PLATCONFIG_H 1
+
+#ifdef ARDUINO_ESP8266_NODEMCU
+	#define __GVLIB_USE_PGMSPACE_FROM_ROOT_FOLDER__ 1
+	#define __GVLIB_USE_STDLIB_NONISO__ 1
+#endif
+
+#endif /* GVLIB_PLATCONFIG_H */

@@ -34,10 +34,25 @@
 #ifndef GV_GV_H
 #define GV_GV_H
 
+#include "gv/gvlib_platconfig.h"
+
+ 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
+
+// #if defined(__AVR_ATmega328P__)
+//  	#include <stdlib.h>
+// #elif !defined(__ESP8266_NodeMCU__)
+//  	#include <stdlib_noniso.h>
+// #endif
+
+
+#ifdef __GVLIB_USE_STDLIB_NONISO__
+	#include <stdlib_noniso.h>
+#else
+   #include <stdlib.h>
+#endif 
 
 #ifdef DEBUG
 #  ifdef ARDUINO
@@ -104,7 +119,8 @@ class IPAddr {
 		IPAddr(const uint16_t data[]);
 		IPAddr(const uint8_t data[], Type type=IPv4);
 
-		const uint8_t* v4() const { 
+		const uint8_t* v4() const {
+			char number[10];
 			return &(data_.ui8)[12]; 
 		}
 

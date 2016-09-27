@@ -24,13 +24,25 @@
  *      Author: Domenico Barra <eisenach@gmail.com>
  */
 
-
 #include "gv/avr/protocols.h"
 #include "gv/avr/gv.h"
 
-#include <avr/pgmspace.h>
+// #if defined(__AVR_ATmega328P__)
+//  	#include <avr/pgmspace.h>
+// #elif !defined(__ESP8266_NodeMCU__)
+//  	#include <pgmspace.h> 
+// #endif
 
-namespace gv { namespace avr {
+
+
+#ifdef __GVLIB_USE_PGMSPACE_FROM_ROOT_FOLDER__
+	#include <pgmspace.h>
+#else
+   #include <avr/pgmspace.h>
+#endif
+
+namespace gv { 
+	namespace avr {
 
 /**************************************************************************
  * 

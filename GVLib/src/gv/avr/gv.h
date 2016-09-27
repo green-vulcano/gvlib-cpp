@@ -28,12 +28,17 @@
  * micro-controllers.
  */
 
-
 #ifndef GV_AVR_GV_H_
 #define GV_AVR_GV_H_
 
 #include "gv/gv.h"
-#include <avr/pgmspace.h>
+
+
+#ifdef __GVLIB_USE_PGMSPACE_FROM_ROOT_FOLDER__
+	#include <pgmspace.h>
+#else
+   #include <avr/pgmspace.h>
+#endif
 
 
 namespace gv {
@@ -42,6 +47,7 @@ namespace avr {
 class Buffer{
 	char buffer_[BUFFER_SIZE];
 	int index_;
+
 public:
 	Buffer() : index_(0) { }
 
@@ -62,9 +68,10 @@ public:
 			return 0;
 		}
 
-		char* (*cpy)(char*, const char*) = progmem_ ? strcpy_P : strcpy;
+
+		char* (*cpy)(char*, const char*) = progmem_ ? my_strcpy_P : strcpy;
 		char* (*ncpy)(char*, const char*, size_t) = progmem_ ? strncpy_P : strncpy;
-		size_t (*len)(const char*) = progmem_ ? strlen_P : strlen;
+		size_t (*len)(const char*) = progmem_ ? my_strlen_P : strlen;
 
 		size_t length = len(value);
 		size_t next = index_ + length;
@@ -105,6 +112,18 @@ public:
 			// TODO: IMPLEMENT IPV6 conversion to string
 		}
 		return added;
+	}
+
+private:
+	/* our own versions of strcpy_P and strlen_P, since we need to
+	   take their address in order to write more generic code, and they
+	   are actually macros on some platforms */
+	static char* my_strcpy_P(char* dst, const char* src) {
+		return strcpy_P(dst, src);
+	}
+
+	static size_t my_strlen_P(const char* src) {
+		return strlen_P(src);
 	}
 
 };
