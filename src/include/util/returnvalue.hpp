@@ -39,16 +39,19 @@
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GV_RETURNVALUE_HPP
-#define GV_RETURNVALUE_HPP
+#ifndef GV_UTIL_RETURNVALUE_HPP
+#define GV_UTIL_RETURNVALUE_HPP
 
 #include <utility>
 #include <map>
 #include <string>
+#include <limits>
 
-namespace gv {
+namespace gv { namespace util {
 
-
+/**
+ * Represents the return status of a function (i.e. OK or error).
+ */
 class Status {
     int                               code_;
     std::string                       description_;
@@ -57,45 +60,78 @@ class Status {
         return BY_CODE;
     }
 public:
+    /**
+     * Default constructor, constructs as Status::ok()
+     */
     Status() : code_(ok().code_), description_(ok().description_) { }
-    Status(int code, const std::string& description) : code_(code), description_(description) { }
+    /**
+     * Constructs with a custom code and description -
+     * i.e. not recording into the code map
+     */
+    Status(int code, const std::string& description) :
+        code_(code), description_(description) { }
     int code() const { return code_; }
     const std::string& description() const { return description_; }
     bool is_ok() const { return code_ == 0; }
     bool is_system_error() const { return code_ < 0; }
     bool is_business_error() const { return code_ > 0; }
 
-    static Status* by_code(int code) {
+    operator int() const { return code_; }
+
+    static const Status& by_code(int code) {
         auto it = by_code_map().find(code);
-        if (it != by_code_map().end()) return &it->second;
-        return nullptr;
+        if (it != by_code_map().end()) return it->second;
+        return unknown();
     }
     static const Status& ok() {
         static const Status OK(0, "OK");
         return OK;
     }
+    static const Status& unknown() {
+        static const Status UNKNOWN(std::numeric_limits<int>::max(), "UNKNOWN");
+        return UNKNOWN;
+    }
 
     static void record(int code, const std::string& description) {
         by_code_map()[code] = Status(code, description);
     }
+
 };
 
 
-
-template <typename R> class ReturnValue {
+/**
+ *
+ */
+template <typename R> class StatusRet {
     Status sts_;
-    R      ret_;
+    char   storage_[sizeof(R)];
+    bool   value_set_;
 public:
-    ReturnValue(const Status& sts, R&& ret): sts_(sts), ret_(ret) { }
-    static ReturnValue ok(R&& ret) { return ReturnValue(Status::ok(), std::move(ret)); }
-    static ReturnValue by_status_code(int code, R&& ret) {
-        return ReturnValue(Status::by_code(code), std::move(ret));
+    StatusRet(const Status& sts, R&& ret): sts_(sts), value_set_(true) {
+        R* handle = reinterpret_cast<R*>(storage_);
+        new(handle) R;
+        *handle = std::move(ret);
     }
-    R value() const { return ret_; }
+    StatusRet(const Status& sts): sts_(sts), value_set_(false) { }
+    StatusRet(StatusRet&& mv) = default;
+
+    static StatusRet ok(R&& ret) { return StatusRet(Status::ok(), std::move(ret)); }
+    static StatusRet by_status_code(int code, R&& ret) {
+        return StatusRet(Status::by_code(code), std::move(ret));
+    }
+    bool is_value_set() const { return value_set_; }
+    const R value() const { return *(reinterpret_cast<const R*>(storage_)); }
     Status status() const { return sts_; }
+ 
+    operator Status() const { return status(); }
+    operator R() const { return value(); }
+
+private:
+    StatusRet(const StatusRet&)            = delete;
+    StatusRet& operator=(const StatusRet&) = delete;
 };
 
 
-}
+}} // namespace gv::util
 
 #endif
