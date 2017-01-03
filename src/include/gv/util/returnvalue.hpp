@@ -17,8 +17,8 @@
  *         .+ --- +.                                                         *
  *           -:::-'                                                          * 
  *****************************************************************************
- *     GreenVulcano C++ Libraies
- *     This file: returnvalue.hpp
+ *     GreenVulcano C++ Libraries
+ *     This file: gv/util/returnvalue.hpp
  *                Generic return-value type
  *****************************************************************************
  * Copyright (c) 2016, GreenVulcano Open Source Project. All rights reserved.
@@ -70,6 +70,11 @@ public:
      */
     Status(int code, const std::string& description) :
         code_(code), description_(description) { }
+    Status(Status&& s)               = default;
+    Status(const Status& s)          = default;
+    Status& operator=(const Status&) = default;
+    Status& operator=(Status&&)      = default;
+
     int code() const { return code_; }
     const std::string& description() const { return description_; }
     bool is_ok() const { return code_ == 0; }
@@ -109,15 +114,22 @@ template <typename R> class StatusRet {
 public:
     StatusRet(const Status& sts, R&& ret): sts_(sts), value_set_(true) {
         R* handle = reinterpret_cast<R*>(storage_);
-        new(handle) R;
-        *handle = std::move(ret);
+        new(handle) R(std::move(ret));
+    }
+    StatusRet(const Status& sts, const R& ret): sts_(sts), value_set_(true) {
+        R* handle = reinterpret_cast<R*>(storage_);
+        new(handle) R(ret);
     }
     StatusRet(const Status& sts): sts_(sts), value_set_(false) { }
     StatusRet(StatusRet&& mv) = default;
 
     static StatusRet ok(R&& ret) { return StatusRet(Status::ok(), std::move(ret)); }
+    static StatusRet ok(const R& ret) { return StatusRet(Status::ok(), ret); }
     static StatusRet by_status_code(int code, R&& ret) {
         return StatusRet(Status::by_code(code), std::move(ret));
+    }
+    static StatusRet by_status_code(int code, const R& ret) {
+        return StatusRet(Status::by_code(code), ret);
     }
     bool is_value_set() const { return value_set_; }
     const R value() const { return *(reinterpret_cast<const R*>(storage_)); }

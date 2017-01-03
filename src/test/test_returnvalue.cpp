@@ -1,4 +1,4 @@
-#include "util/returnvalue.hpp"
+#include "gv/util/returnvalue.hpp"
 #include <string>
 #include <iostream>
 #include <cassert>
@@ -14,34 +14,53 @@ public:
     }
 } static instance;
 
-StatusRet<string> returns_ok() {
-    return StatusRet<string>::ok("hi, this is the returned string");
+
+string ok_string = "hi, this is the returned string";
+StatusRet<string> returns_ok_string() {
+    return StatusRet<string>::ok(ok_string);
 }
 
+int minus1_int = 82;
+StatusRet<int> returns_minus1_int() {
+    return StatusRet<int>(Status::by_code(-1), minus1_int);
+}
 
-void test_status_code(string expected, int code) {
-    const Status& st = Status::by_code(code);
-    if (st != Status::unknown()) {
-        cout << expected << " found, code: " << st.code()
-             << ", description: " << st.description() << endl;
-    } else {
-        cout << expected << " not found!" << endl;
-    }
-
+int plus1_bool = true;
+StatusRet<bool> returns_plus1_bool() {
+    return StatusRet<bool>(Status::by_code(1), plus1_bool);
 }
 
 int main() {
+    {
+        StatusRet<string> r = returns_ok_string();
+        assert(r.status().is_ok());
+        assert(r.value() == ok_string);
+        cout << "OK_STRING - pass" << endl;
+    }
 
-    StatusRet<string> r = returns_ok();
-    cout << "Returned code: " << r.status() //.code 
-         << ", description: " << r.status().description()
-         << ", value: " << r.value() << endl;
+    {   
+        StatusRet<int> r = returns_minus1_int();
+        assert(r.status().is_system_error());
+        assert(r.value() == minus1_int);
+        cout << "M1_INT    - pass" << endl;
+    }
 
-    test_status_code("Status[-1]", -1);
-    test_status_code("Status[-2]", -2);
+    {   
+        StatusRet<bool> r = returns_plus1_bool();
+        assert(r.status().is_business_error());
+        assert(r.value() == plus1_bool);
+        cout << "P1_BOOL   - pass" << endl;
+    }
 
-    Status s(15, "My Custom Status");
-    assert (s==15);
-    assert (s.description() == "My Custom Status");
-    cout << "Custom status works!" << endl;
+    {
+        assert( Status::by_code(-1) == -1 );
+        assert( Status::by_code(-2) == Status::unknown() );
+        cout << "REGISTER  - pass" << endl;
+    }
+    {
+        Status s(15, "My Custom Status");
+        assert (s==15);
+        assert (s.description() == "My Custom Status");
+        cout << "CUSTOM    - pass" << endl;
+    }
 }
