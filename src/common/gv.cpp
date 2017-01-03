@@ -28,11 +28,17 @@
  * Implementation of base, general-purpose classes.
  */
 
-#include "gv/gv.h"
-#include "gv/avr/gv.h"
-#include "gv/portable_endian.h"
+#include "gv/gv.hpp"
+#include "gv/portable_endian.hpp"
+#include "gv/util/to_string.hpp"
+#include "gv/util/string_fmt.hpp"
 
 namespace gv {
+
+	using util::to_string;
+	using util::format;
+	using std::string;
+
 	const uint8_t IPAddr::IPv4_MASK[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
 
 	/**************************************************************************
@@ -58,6 +64,23 @@ namespace gv {
 		memcpy(&(data_.ui8)[12], data, 4);
 	}
 
+
+	/**************************************************************************
+	 * 
+	 **************************************************************************/
+	IPAddr::operator string() const
+	{
+		switch(type()) {
+		case IPv4:
+			return format("%d.%d.%d.%d", data_.ui8[12], data_.ui8[13], data_.ui8[14], data_.ui8[15]);
+		case IPv6:
+			return format("%x:%x:%x:%x:%x:%x:%x:%x",
+							data_.ui16[0], data_.ui16[1], data_.ui16[2], data_.ui16[3],
+							data_.ui16[4], data_.ui16[5], data_.ui16[6], data_.ui16[7]);
+		default: return "<unknown>";
+		}
+	} 
+
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
@@ -67,20 +90,11 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	// bool GVComm::addCallback(const char* actuatorId, CallbackPointer fn, int param) {
-	// 	gv::avr::Buffer b;
-	// 	b.add(GV_DEVICES);
-	// 	b.add("/");
-	// 	b.add(deviceInfo_.id());
-	// 	b.add(GV_ACTUATORS);
-	// 	b.add("/");
-	// 	b.add(actuatorId);
-	// 	b.add(GV_INPUT);
-
-	// 	const char* topic = b.get();
-
-	// 	return transport_.subscribe(topic, fn, param);
-	// }
+	bool GVComm::addCallback(const string& actuatorId, CallbackPointer fn, int param) {
+		string topic = "/devices/" + to_string(deviceInfo_.id()) +
+		               "/actuators/" + to_string(actuatorId) + "/input";
+		return transport_.subscribe(topic, fn, param);
+	}
 
 	/**************************************************************************
 	 * 
@@ -92,7 +106,7 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::addActuator(const char* id, const char* name, const char* type, CallbackDescriptor desc) {
+	bool GVComm::addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) {
 		return protocol_.addActuator(id, name, type, desc);
 	}
 
@@ -111,16 +125,13 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	Callback::Callback(const char* topic, CallbackDescriptor desc) :
-		next_(NULL), desc_(desc) {
-
-		strncpy(topic_, topic, TOPIC_NAME_SIZE);
-	}
+	Callback::Callback(const string& topic, CallbackDescriptor desc) :
+		topic_(topic), next_(NULL), desc_(desc) { }
 
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	Callback* Callback::add(const char* topic, CallbackDescriptor desc) {
+	Callback* Callback::add(const string& topic, CallbackDescriptor desc) {
 		Callback* cb = new Callback(topic, desc);
 
 		if (head_) {
@@ -135,7 +146,7 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	int Callback::remove(const char* topic, CallbackPointer fn) {
+	int Callback::remove(const string& topic, CallbackPointer fn) {
 		Callback *ptr = head_, *prev;
 		int removed = 0;
 
@@ -160,7 +171,7 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	CallbackParam Callback::call(const char* topic, CallbackParam param) {
+	CallbackParam Callback::call(const string& topic, CallbackParam param) {
 		Callback *ptr = head_, *prev;
 
 		while (find_(topic, NULL, &ptr, &prev)) {
@@ -178,12 +189,12 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool Callback::find_(const char* topic, CallbackPointer fn, Callback** ptr, Callback** prev) {
+	bool Callback::find_(const string& topic, CallbackPointer fn, Callback** ptr, Callback** prev) {
 		Callback* p = *ptr;
 		*prev = p;
 
 		while (p) {
-			if (!strcmp(p->topic_, topic)) {
+			if (p->topic_ == topic) {
 				if (fn != NULL && fn != p->desc_.function) {
 					continue;
 				}
