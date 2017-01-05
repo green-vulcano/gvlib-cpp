@@ -57,7 +57,11 @@ LIBNAME=gvlib-simplelink.a
 
 PROJBASE=.
 
-PREFIX=arm-none-eabi-
+ifeq ($@, arm)
+	PREFIX := arm-none-eabi-
+else
+	PREFIX :=
+endif
 
 
 #
@@ -67,15 +71,15 @@ include ./makedefs
 
 
 TARGET=${BINDIR}/${LIBNAME}
+NOOP_TEST=${BINDIR}/test_noop_transport
 
 #
 # Where to find source files- that do not live in this directory.
 #
-VPATH=${PROJBASE}/src
+VPATH+=${PROJBASE}/src
 VPATH+=${PROJBASE}/src/common
 VPATH+=${PROJBASE}/src/arm/ti-simplelink/src
-
-
+VPATH+=${PROJBASE}/src/test
 
 #
 # Where to find header files that do not live in the source directory.
@@ -90,8 +94,9 @@ IPATH+=${TI_SIMPLELINK_ROOT}/include
 #
 # The default rule, which causes the driver library to be built.
 #
-all: ${OBJDIR} ${BINDIR}
-all: ${TARGET}
+.PHONY: arm clean test
+arm: ${OBJDIR} ${BINDIR}
+arm: ${TARGET}
 
 #
 # The rule to clean out all the build products.
@@ -100,8 +105,9 @@ clean:
 	@rm -rf ${OBJDIR} ${wildcard *~}
 	@rm -rf ${BINDIR} ${wildcard *~}
 
-test:
-	@echo NOSYS :${LIBNOSYS}
+
+test: ${OBJDIR} ${BINDIR}
+test: ${NOOP_TEST}
 
 
 #
@@ -119,6 +125,11 @@ ${BINDIR}:
 #
 ${TARGET}: ${OBJDIR}/gv.o     # main file
 ${TARGET}: ${OBJDIR}/protocol_v1.o     # main file
+
+
+${NOOP_TEST}: ${OBJDIR}/gv.o
+${NOOP_TEST}: ${OBJDIR}/protocol_v1.o
+${NOOP_TEST}: ${OBJDIR}/test_noop_transport.o
 
 #
 # Include the automatically generated dependency files.

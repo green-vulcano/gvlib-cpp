@@ -153,9 +153,9 @@ class DeviceInfo {
  * Callback parameter type
  **************************************************************************/ 
 struct CallbackParam {
-	void*   data;
-	size_t  size;
+	string  data;
 	int     param;
+	CallbackParam(const string& data_, int param_) : data(data_), param(param_) { }
 };
 
 

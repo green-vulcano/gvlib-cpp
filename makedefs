@@ -157,3 +157,12 @@ ${BINDIR}/%.axf:
 ${BINDIR}/%.bin:
 	@echo "LD ${@}"
 	@${CPP} ${LDFLAGS} ${DEFINES} -o ${@} $(filter %.o %.a, ${^})
+
+${BINDIR}/test_%:
+	@if [ 'x${VERBOSE}' = x ];                            \
+	 then                                                 \
+	     echo "  LD    ${@}";                             \
+	 else                                                 \
+	     echo ${CPP} -o ${@} $(filter %.o %.a, ${^}) ;    \
+	 fi
+	@${CPP} -o ${@} $(filter %.o %.a, ${^})

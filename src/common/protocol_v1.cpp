@@ -54,10 +54,10 @@ using namespace gv::util;
  **************************************************************************/
 bool Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
 
-    assert(desc != nullptr);
-    
-    string topic = format("/devices/%s/input", deviceInfo_.id().c_str());
-	transport_.subscribe(topic, desc);
+    if(desc != nullptr) {
+        string topic = format("/devices/%s/input", deviceInfo_.id().c_str());
+        transport_.subscribe(topic, desc);
+    }
 
     string payload = format("{\"nm\":\"%s\",\"ip\":\"%s\",\"prt\":\"%d\"}",
                             deviceInfo_.name().c_str(),
