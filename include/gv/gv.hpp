@@ -107,7 +107,6 @@ class IPAddr {
 		IPAddr(const uint8_t data[], Type type=IPv4);
 
 		const uint8_t* v4() const {
-			char number[10];
 			return &(data_.ui8)[12]; 
 		}
 
@@ -353,9 +352,9 @@ class GVComm {
 		}
 
 	private:
+		const DeviceInfo& deviceInfo_;
 		Transport&        transport_;
 		Protocol&         protocol_;
-		const DeviceInfo& deviceInfo_;
 };
 
 /**************************************************************************

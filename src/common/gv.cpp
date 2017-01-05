@@ -49,7 +49,8 @@ namespace gv {
 		uint16_t *d = data_.ui16;
 
 		for (int i=0; i < 8; i++) {
-			*(d++) = htobe16(*(p++));
+			*d = htobe16(*p);
+			++d; ++p;
 		}
 	}
 

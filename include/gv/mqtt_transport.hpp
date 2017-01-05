@@ -45,18 +45,22 @@
  #ifndef GV_MQTT_TRANSPORT_HPP
  #define GV_MQTT_TRANSPORT_HPP
 
-#include "gv/gv.h"
+#include "gv/gv.hpp"
 #include <memory>
 
 namespace gv {
 
-class MqttTransport_impl; // forward declaration, defined per-platform.
+class MqttDriver;
 
 class MqttTransport : public Transport, private ServerAndPort {
 	public:
-		MqttTransport(const DeviceInfo& info, const IPAddr& server, uint16_t port,
-				const std::string& username="", const std::string& password="",
-                void* plat_config=nullptr);
+		MqttTransport(
+            const DeviceInfo& info, const IPAddr& server, uint16_t port,
+            void* plat_config,
+			const std::string& username="", const std::string& password=""
+        ) : ServerAndPort(server, port), deviceInfo_(info),
+            username_(username), password_(password),
+            plat_config_(plat_config), driver_(create_driver_()) { }
 
 		bool send(const std::string& service, const std::string& payload) override;
 		bool connect() override;
@@ -68,19 +72,25 @@ class MqttTransport : public Transport, private ServerAndPort {
 		const DeviceInfo&                   deviceInfo_;
 		std::string                         username_;
 		std::string                         password_;
-        std::unique_ptr<MqttTransport_impl> pimpl_;
+        void*                               plat_config_;
+        std::unique_ptr<MqttDriver>         driver_;
+
+        static std::unique_ptr<MqttDriver>
+		       create_driver_(void* plat_config); // defined per-platform.
 
 		MqttTransport(const MqttTransport&);
 		MqttTransport& operator=(const MqttTransport&);
 
 		bool handleSubscription(const string& topic, CallbackPointer fn) override;
-
-//		static void pubsub_callback(char *topic, uint8_t *payload, unsigned int psize) {
-//			payload[psize] = '\0'; // the library doesn't to it for us. so this is needed for safety.
-//			gv::GVComm::callback(topic, { payload, psize });
-//		}
 };
 
+class MqttDriver
+public:
+	bool connect() = 0;
+	bool connected() = 0;
+	bool disconnect() = 0;
+	bool poll() = 0;
+	virtual ~MqttDriver() = default;
 }
 
  #endif

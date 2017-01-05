@@ -101,6 +101,7 @@ bool Protocol_IOT_v1::send(const Message& msg) {
         string service = format("/devices/%s/sensors/%s/data", deviceInfo_.id().c_str(), msg.src_id().c_str());
 	    return transport_.send(service, msg.data());
     }
+    default: return false;
     }
 }
 
