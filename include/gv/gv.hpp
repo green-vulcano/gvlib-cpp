@@ -47,7 +47,6 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include <vector>
 
 namespace gv {
 using namespace std;
@@ -283,7 +282,7 @@ class Transport {
 		bool subscribe(const string& topic, CallbackDescriptor cb, int param=0) {
 			if (handleSubscription(topic, cb)) {
 				GV_DEBUG("Subscribe: ");
-				GV_DEBUGLN(topic);
+				GV_DEBUGLN(topic.c_str());
 
 				Callback::add(topic, cb);
 				return true;
@@ -330,8 +329,6 @@ class Protocol {
 class GVComm {
 	public:
 		GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol);
-
-		bool addCallback(const string& actuatorId, CallbackPointer fn, int param=0);
 
 		bool addDevice(CallbackDescriptor desc=NULL);
 		

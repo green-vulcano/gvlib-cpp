@@ -57,10 +57,10 @@ LIBNAME=gvlib-simplelink.a
 
 PROJBASE=.
 
-ifeq ($@, arm)
-	PREFIX := arm-none-eabi-
+ifeq (arm, $(findstring arm, ${MAKECMDGOALS}))
+	PREFIX=arm-none-eabi-
 else
-	PREFIX :=
+	PREFIX=
 endif
 
 

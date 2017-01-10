@@ -88,14 +88,6 @@ namespace gv {
 	GVComm::GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol) :
 		deviceInfo_(deviceInfo), transport_(transport), protocol_ (protocol) { }
 
-	/**************************************************************************
-	 * 
-	 **************************************************************************/
-	bool GVComm::addCallback(const string& actuatorId, CallbackPointer fn, int param) {
-		string topic = "/devices/" + to_string(deviceInfo_.id()) +
-		               "/actuators/" + to_string(actuatorId) + "/input";
-		return transport_.subscribe(topic, fn, param);
-	}
 
 	/**************************************************************************
 	 * 
