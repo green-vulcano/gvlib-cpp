@@ -54,7 +54,8 @@ int main() {
 
     {
         assert( Status::by_code(-1) == -1 );
-        assert( Status::by_code(-2) == Status::unknown() );
+        assert( Status::by_code(-2) == -2 );
+        cout << "by-code(-2) = " << Status::by_code(-2).description() << endl;
         cout << "REGISTER  - pass" << endl;
     }
     {

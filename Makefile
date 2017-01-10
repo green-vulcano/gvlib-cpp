@@ -71,7 +71,10 @@ include ./makedefs
 
 
 TARGET=${BINDIR}/${LIBNAME}
-NOOP_TEST=${BINDIR}/test_noop_transport
+TEST_NOOP=${BINDIR}/test_noop_transport
+TEST_STRING_UTILS=${BINDIR}/test_string_utils
+TEST_RETURN_VALUE=${BINDIR}/test_return_value
+
 
 #
 # Where to find source files- that do not live in this directory.
@@ -107,7 +110,9 @@ clean:
 
 
 test: ${OBJDIR} ${BINDIR}
-test: ${NOOP_TEST}
+test: ${TEST_NOOP}
+test: ${TEST_STRING_UTILS}
+test: ${TEST_RETURN_VALUE}
 
 
 #
@@ -127,9 +132,17 @@ ${TARGET}: ${OBJDIR}/gv.o     # main file
 ${TARGET}: ${OBJDIR}/protocol_v1.o     # main file
 
 
-${NOOP_TEST}: ${OBJDIR}/gv.o
-${NOOP_TEST}: ${OBJDIR}/protocol_v1.o
-${NOOP_TEST}: ${OBJDIR}/test_noop_transport.o
+${TEST_NOOP}: ${OBJDIR}/gv.o
+${TEST_NOOP}: ${OBJDIR}/protocol_v1.o
+${TEST_NOOP}: ${OBJDIR}/test_noop_transport.o
+
+${TEST_STRING_UTILS}: ${OBJDIR}/gv.o
+${TEST_STRING_UTILS}: ${OBJDIR}/protocol_v1.o
+${TEST_STRING_UTILS}: ${OBJDIR}/test_string_utils.o
+
+${TEST_RETURN_VALUE}: ${OBJDIR}/gv.o
+${TEST_RETURN_VALUE}: ${OBJDIR}/protocol_v1.o
+${TEST_RETURN_VALUE}: ${OBJDIR}/test_returnvalue.o
 
 #
 # Include the automatically generated dependency files.

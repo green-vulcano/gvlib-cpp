@@ -46,6 +46,7 @@
 #include <map>
 #include <string>
 #include <limits>
+#include <cstring>
 
 namespace gv { namespace util {
 
@@ -86,7 +87,8 @@ public:
     static const Status& by_code(int code) {
         auto it = by_code_map().find(code);
         if (it != by_code_map().end()) return it->second;
-        return unknown();
+        record(code, std::strerror(code < 0 ? -code : code));
+        return by_code(code);
     }
     static const Status& ok() {
         static const Status OK(0, "OK");
