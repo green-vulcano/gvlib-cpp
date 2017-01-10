@@ -55,10 +55,10 @@ class Protocol_IOT_v1 : public Protocol {
 public:
 	Protocol_IOT_v1(const DeviceInfo& info, Transport& transport) :
 		Protocol(info, transport) { }
-	virtual bool addDevice(CallbackDescriptor desc=nullptr) override;
-	virtual bool addSensor(const string& id, const string& name, const string& type) override;
-	virtual bool addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) override;
-	virtual bool send(const Message& msg) override;
+	virtual Status addDevice(CallbackDescriptor desc=nullptr) override;
+	virtual Status addSensor(const string& id, const string& name, const string& type) override;
+	virtual Status addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) override;
+	virtual Status send(const Message& msg) override;
 
 };
 

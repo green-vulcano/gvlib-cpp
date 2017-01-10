@@ -47,6 +47,7 @@
 
 #include "gv/gv.hpp"
 #include <memory>
+#include <errno.h>
 
 namespace gv {
 
@@ -54,28 +55,29 @@ class NoopTransport : public Transport {
 	public:
 		NoopTransport() { }
 
-		bool send(const std::string& service, const std::string& payload) override
+		Status send(const std::string& service, const std::string& payload) override
 		{
 			if (connected_) {
 				last_topic_ = service;
 				last_payload_ = payload;
+				return Status::ok();
 			}
-			return connected_;
+			return Status::by_code(-ENOTCONN);
 		}
 
-		bool connect() override { return (connected_ = true); }
+		Status connect() override { connected_ = true; return Status::ok(); }
 
 		bool connected() override { return connected_; }
 
-		bool disconnect() override { connected_ = false; return true; }
+		Status disconnect() override { connected_ = false; return Status::ok(); }
 		
-		bool poll() override {
+		StatusRet<bool> poll() override {
 			if (!last_payload_.empty()) {
 				Callback::call(last_topic_, CallbackParam(last_payload_, 0));
 				last_payload_ = last_topic_ = std::string();
-				return true;
+				return StatusRet<bool>::ok(true);
 			}
-			return false;
+			return StatusRet<bool>::ok(false);
 		}
 
 	private:
@@ -83,9 +85,9 @@ class NoopTransport : public Transport {
 		std::string last_payload_;
 		std::string last_topic_;
 
-		bool handleSubscription(const string& topic, CallbackPointer fn) override {
+		Status handleSubscription(const string& topic, CallbackPointer fn) override {
 			Callback::add(topic, fn);
-			return true;
+			return Status::ok();
 		}
 };
 } // namespace gv

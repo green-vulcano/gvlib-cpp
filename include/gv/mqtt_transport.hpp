@@ -62,11 +62,16 @@ class MqttTransport : public Transport, private ServerAndPort {
             username_(username), password_(password),
             plat_config_(plat_config), driver_(create_driver_()) { }
 
-		bool send(const std::string& service, const std::string& payload) override;
-		bool connect() override;
+		Status send(const std::string& service, const std::string& payload) override
+		{ return driver_->send(service, payload); }
+
+		Status connect() override {
+			return driver_->connect();
+		}
+
 		bool connected() override;
-		bool disconnect() override;
-		bool poll() override;
+		Status disconnect() override;
+		StatusRet<bool> poll() override;
 
 	private:
 		const DeviceInfo&                   deviceInfo_;
@@ -81,15 +86,16 @@ class MqttTransport : public Transport, private ServerAndPort {
 		MqttTransport(const MqttTransport&);
 		MqttTransport& operator=(const MqttTransport&);
 
-		bool handleSubscription(const string& topic, CallbackPointer fn) override;
+		Status handleSubscription(const string& topic, CallbackPointer fn) override;
 };
 
 class MqttDriver
 public:
-	bool connect() = 0;
+	Status send(const std::string& service, const std::string& payload) override;
+	Status connect() = 0;
 	bool connected() = 0;
-	bool disconnect() = 0;
-	bool poll() = 0;
+	Status disconnect() = 0;
+	StatusRet<bool> poll() = 0;
 	virtual ~MqttDriver() = default;
 }
 

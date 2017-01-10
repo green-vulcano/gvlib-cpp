@@ -43,6 +43,7 @@
 #include "gv/util/string_fmt.hpp"
 #include <cassert>
 #include <string>
+#include <cerrno>
 
 namespace gv { 
 namespace protocols {
@@ -52,7 +53,7 @@ using namespace gv::util;
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
+Status Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
 
     if(desc != nullptr) {
         string topic = format("/devices/%s/input", deviceInfo_.id().c_str());
@@ -71,7 +72,7 @@ bool Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::addSensor(const string& id, const string& name, const string& type) {
+Status Protocol_IOT_v1::addSensor(const string& id, const string& name, const string& type) {
     string payload = format("{\"nm\":\"%s\",\"tp\":\"%s\"}", name.c_str(), type.c_str());
     string service = format("/devices/%s/sensors/%s", deviceInfo_.id().c_str(), id.c_str());
 
@@ -81,7 +82,7 @@ bool Protocol_IOT_v1::addSensor(const string& id, const string& name, const stri
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) {
+Status Protocol_IOT_v1::addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) {
 
     string topic = format("/devices/%s/actuators/%s/input", deviceInfo_.id().c_str(), id.c_str());
 	transport_.subscribe(topic, desc);
@@ -95,13 +96,13 @@ bool Protocol_IOT_v1::addActuator(const string& id, const string& name, const st
 /**************************************************************************
  * 
  **************************************************************************/
-bool Protocol_IOT_v1::send(const Message& msg) {
+Status Protocol_IOT_v1::send(const Message& msg) {
     switch (msg.type()) {
     case SENSOR_DATA: {
         string service = format("/devices/%s/sensors/%s/data", deviceInfo_.id().c_str(), msg.src_id().c_str());
 	    return transport_.send(service, msg.data());
     }
-    default: return false;
+    default: return Status::by_code(-EOPNOTSUPP);
     }
 }
 

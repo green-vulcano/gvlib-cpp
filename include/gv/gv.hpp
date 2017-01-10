@@ -43,13 +43,18 @@
 #define GV_HPP
 
 #include "gv_config.hpp"
+#include "gv/util/returnvalue.hpp"
 
 #include <cstdint>
 #include <cstring>
 #include <string>
 
 namespace gv {
-using namespace std;
+	
+using std::string;
+
+using util::Status;
+using util::StatusRet;
 
 enum MessageType {
 	REGISTER_DEVICE,
@@ -114,7 +119,7 @@ class IPAddr {
 		}
 
 		Type type() const {
-			return ( memcmp(data_.ui8, IPv4_MASK, sizeof(IPv4_MASK)) != 0 ? IPv6 : IPv4 );
+			return ( std::memcmp(data_.ui8, IPv4_MASK, sizeof(IPv4_MASK)) != 0 ? IPv6 : IPv4 );
 		}
 
 		operator string() const;
@@ -275,30 +280,33 @@ class Callback {
 class Transport {
 	public:
 		virtual bool connected()  = 0;
-		virtual bool connect()    = 0;
-		virtual bool disconnect() = 0;
-		virtual bool send(const string& service, const string& data) = 0;
+		virtual Status connect()    = 0;
+		virtual Status disconnect() = 0;
+		virtual Status send(const string& service, const string& data) = 0;
 
-		bool subscribe(const string& topic, CallbackDescriptor cb, int param=0) {
-			if (handleSubscription(topic, cb)) {
+		Status subscribe(const string& topic, CallbackDescriptor cb, int param=0) {
+			Status s = handleSubscription(topic, cb);
+			if (s.is_ok()) {
 				GV_DEBUG("Subscribe: ");
 				GV_DEBUGLN(topic.c_str());
-
 				Callback::add(topic, cb);
-				return true;
 			}
-			return false;
+			return s;
 		}
 
-		virtual bool poll() = 0;
+		virtual StatusRet<bool> poll() = 0;
 		virtual ~Transport() = default;
 
 	protected:
 		Transport() { }
-		virtual bool ensureConnected() { if (!connected()) { return connect(); } return true; }
+		virtual Status ensureConnected() {
+			if (!connected()) {
+				return connect(); 
+			}
+			return Status::ok(); }
 
 	private:
-		virtual bool handleSubscription(const string& topic, CallbackPointer cb) = 0;
+		virtual Status handleSubscription(const string& topic, CallbackPointer cb) = 0;
 		Transport(const Transport&);
 		Transport& operator=(const Transport&);
 };
@@ -311,10 +319,10 @@ class Protocol {
 		Protocol(const DeviceInfo& info, Transport& transport) :
 			transport_(transport), deviceInfo_(info) { }
 
-		virtual bool addDevice(CallbackDescriptor desc=nullptr) = 0;
-		virtual bool addSensor(const string& id, const string& name, const string& type) = 0;
-		virtual bool addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) = 0;
-		virtual bool send(const Message& msg) = 0;
+		virtual Status addDevice(CallbackDescriptor desc=nullptr) = 0;
+		virtual Status addSensor(const string& id, const string& name, const string& type) = 0;
+		virtual Status addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) = 0;
+		virtual Status send(const Message& msg) = 0;
 
 		virtual ~Protocol() = default;
 
@@ -330,19 +338,19 @@ class GVComm {
 	public:
 		GVComm(const DeviceInfo& deviceInfo, Transport& transport, Protocol& protocol);
 
-		bool addDevice(CallbackDescriptor desc=NULL);
+		Status addDevice(CallbackDescriptor desc=NULL);
 		
-		bool addSensor(const string& id, const string& name, const string& type) { 
+		Status addSensor(const string& id, const string& name, const string& type) { 
 			return protocol_.addSensor(id, name, type); 
 		}
 
-		bool addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc);
+		Status addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc);
 
-		bool send(const Message& msg) { 
+		Status send(const Message& msg) { 
 			return protocol_.send(msg); 
 		}
 
-		bool poll();
+		StatusRet<bool> poll();
 
 		static CallbackParam callback(const string& topic, CallbackParam param) {
 			return Callback::call(topic, param);

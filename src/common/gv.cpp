@@ -92,21 +92,21 @@ namespace gv {
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::addDevice(CallbackDescriptor desc) { 
+	Status GVComm::addDevice(CallbackDescriptor desc) { 
 		return protocol_.addDevice(desc); 
 	}
 
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) {
+	Status GVComm::addActuator(const string& id, const string& name, const string& type, CallbackDescriptor desc) {
 		return protocol_.addActuator(id, name, type, desc);
 	}
 
 	/**************************************************************************
 	 * 
 	 **************************************************************************/
-	bool GVComm::poll() {
+	StatusRet<bool> GVComm::poll() {
 		return transport_.poll();
 	}
 
