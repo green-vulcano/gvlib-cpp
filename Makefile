@@ -93,6 +93,12 @@ IPATH+=${PROJBASE}/include
 IPATH+=${PROJBASE}/src/arm/ti-simplelink/include
 
 IPATH+=${TI_SIMPLELINK_ROOT}/include
+IPATH+=${TI_SIMPLELINK_ROOT}/../simplelink_extlib/provisioninglib
+IPATH+=${TI_SIMPLELINK_ROOT}/../driverlib
+IPATH+=${TI_SIMPLELINK_ROOT}/../inc
+
+
+IPATH+=${TI_SIMPLELINK_NETAPPS}/mqtt/include
 
 #
 # The default rule, which causes the driver library to be built.
@@ -128,8 +134,9 @@ ${BINDIR}:
 #
 # Files to be built and linked to build the final solution.
 #
-${TARGET}: ${OBJDIR}/gv.o     # main file
-${TARGET}: ${OBJDIR}/protocol_v1.o     # main file
+${TARGET}: ${OBJDIR}/gv.o
+${TARGET}: ${OBJDIR}/protocol_v1.o
+${TARGET}: ${OBJDIR}/mqtt_transport_impl.o
 
 
 ${TEST_NOOP}: ${OBJDIR}/gv.o

@@ -62,13 +62,8 @@ class MqttTransport : public Transport, private ServerAndPort {
             username_(username), password_(password),
             plat_config_(plat_config), driver_(create_driver_()) { }
 
-		Status send(const std::string& service, const std::string& payload) override
-		{ return driver_->send(service, payload); }
-
-		Status connect() override {
-			return driver_->connect();
-		}
-
+		Status send(const std::string& service, const std::string& payload) override;
+		Status connect() override;
 		bool connected() override;
 		Status disconnect() override;
 		StatusRet<bool> poll() override;
@@ -80,8 +75,7 @@ class MqttTransport : public Transport, private ServerAndPort {
         void*                               plat_config_;
         std::unique_ptr<MqttDriver>         driver_;
 
-        static std::unique_ptr<MqttDriver>
-		       create_driver_(void* plat_config); // defined per-platform.
+        std::unique_ptr<MqttDriver> create_driver_(); // defined per-platform.
 
 		MqttTransport(const MqttTransport&);
 		MqttTransport& operator=(const MqttTransport&);
@@ -89,14 +83,10 @@ class MqttTransport : public Transport, private ServerAndPort {
 		Status handleSubscription(const string& topic, CallbackPointer fn) override;
 };
 
-class MqttDriver
+class MqttDriver {
 public:
-	Status send(const std::string& service, const std::string& payload) override;
-	Status connect() = 0;
-	bool connected() = 0;
-	Status disconnect() = 0;
-	StatusRet<bool> poll() = 0;
 	virtual ~MqttDriver() = default;
-}
+};
 
- #endif
+} // namespace gv
+#endif

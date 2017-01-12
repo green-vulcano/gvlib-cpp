@@ -91,12 +91,12 @@ public:
         return by_code(code);
     }
     static const Status& ok() {
-        static const Status OK(0, "OK");
-        return OK;
+        static const Status OK_(0, "OK");
+        return OK_;
     }
     static const Status& unknown() {
-        static const Status UNKNOWN(std::numeric_limits<int>::max(), "UNKNOWN");
-        return UNKNOWN;
+        static const Status UNKNOWN_(std::numeric_limits<int>::max(), "UNKNOWN");
+        return UNKNOWN_;
     }
 
     static void record(int code, const std::string& description) {
