@@ -64,22 +64,25 @@ extern "C" {
 #include <memory>
 #include <cstdarg>
 #include <cstdlib>
+#include <cstdio>
 
 
+// Texas Instruments bare-metal and SimpleLink includes
 #include "hw_types.h"
-#include "hw_memmap.h"
-#include "sl_mqtt_client.h" // Texas Instruments SmartLink MQTT Implementation
-#include "uart.h"
-#include "rom_map.h"        // Texas Instruments indirection for ROM vs. RAM
+#include "hw_memmap.h"      // Where in RAM are the hardware ports mapped
+#include "rom_map.h"        // Uses ROM if available, defaults to RAM
+#include "uart.h"           // UART low-level interface
+#include "sl_mqtt_client.h" // SimpleLink MQTT Client Implementation
 
 
 
 namespace gv {
-using ti_simplelink::PlatConfig;
+using PlatConfig = ti_simplelink::SlMqtt_PlatConfig;
 
 
 
 namespace {
+    using namespace std;
 
     static unsigned long UART_BASE = UARTA0_BASE;
 

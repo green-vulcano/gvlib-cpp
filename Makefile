@@ -136,6 +136,7 @@ ${BINDIR}:
 #
 ${TARGET}: ${OBJDIR}/gv.o
 ${TARGET}: ${OBJDIR}/protocol_v1.o
+${TARGET}: ${OBJDIR}/mqtt_transport.o
 ${TARGET}: ${OBJDIR}/mqtt_transport_impl.o
 
 

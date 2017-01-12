@@ -17,10 +17,13 @@
  *         .+ --- +.                                                         *
  *           -:::-'                                                          * 
  *****************************************************************************
- * Copyright (c) 2015-2017, GreenVulcano Open Source Project.
- * All rights reserved.
+ *     GreenVulcano C++ Libraries
+ *     This file: common/mqtt_transport.cpp
+ *                Implementation of the generic part of MQTT Transport
+ *****************************************************************************
+ * Copyright (c) 2016, GreenVulcano Open Source Project. All rights reserved.
  *
- * This file is part of the GreenVulcano Communication Library for IoT.
+ * This file is part of the GreenVulcano Integration Platform.
  *
  * This is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -34,59 +37,20 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
- *****************************************************************************
- *     GreenVulcano Communication Library for C++
- *     This file  : gv/mqtt_transport.hpp
- *                  Main header file MQTT Transport.
- *     Created on : Jan 3, 2017.
- *     Author     : Domenico Barra <eisenach@gmail.com>
- ****************************************************************************/
+ */
 
- #ifndef GV_MQTT_TRANSPORT_HPP
- #define GV_MQTT_TRANSPORT_HPP
-
-#include "gv/gv.hpp"
-#include <memory>
+ #include "gv/mqtt_transport.hpp"
 
 namespace gv {
 
-class MqttDriver;
+MqttTransport::MqttTransport(
+	const DeviceInfo& info, const IPAddr& server, uint16_t port,
+	void* plat_config,
+	const std::string& username, const std::string& password
+) : ServerAndPort(server, port), deviceInfo_(info),
+	username_(username), password_(password),
+	plat_config_(plat_config), driver_(create_driver_()) { }
 
-/**
- * Transport using the MQTT Protocol.
- */
-class MqttTransport : public Transport, private ServerAndPort {
-	public:
-		MqttTransport(
-            const DeviceInfo& info, const IPAddr& server, uint16_t port,
-            void* plat_config,
-			const std::string& username="", const std::string& password=""
-        );
-		Status send(const std::string& service, const std::string& payload) override;
-		Status connect() override;
-		bool connected() override;
-		Status disconnect() override;
-		StatusRet<bool> poll() override;
+	
 
-	private:
-		const DeviceInfo&                   deviceInfo_;
-		std::string                         username_;
-		std::string                         password_;
-        void*                               plat_config_;
-        std::unique_ptr<MqttDriver>         driver_;
-
-        std::unique_ptr<MqttDriver> create_driver_(); // defined per-platform.
-
-		MqttTransport(const MqttTransport&);
-		MqttTransport& operator=(const MqttTransport&);
-
-		Status handleSubscription(const string& topic, CallbackPointer fn) override;
-};
-
-class MqttDriver {
-public:
-	virtual ~MqttDriver() = default;
-};
-
-} // namespace gv
-#endif
+}
