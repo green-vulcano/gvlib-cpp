@@ -49,23 +49,26 @@
 #include <memory>
 
 namespace gv {
+namespace trans {
+namespace mqtt {
 
-class MqttDriver;
+class Driver;
+class WillConfig;
 
 /**
  * Transport using the MQTT Protocol.
  */
-class MqttTransport : public Transport, private ServerAndPort {
+class Transport : public gv::Transport, private ServerAndPort {
 	public:
-		MqttTransport(
+		Transport(
             const DeviceInfo& info, const IPAddr& server, uint16_t port,
             void* plat_config,
 			const std::string& username="", const std::string& password=""
         );
-		Status send(const std::string& service, const std::string& payload) override;
 		Status connect() override;
 		bool connected() override;
 		Status disconnect() override;
+		Status send(const std::string& service, const std::string& payload) override;
 		StatusRet<bool> poll() override;
 
 	private:
@@ -73,20 +76,23 @@ class MqttTransport : public Transport, private ServerAndPort {
 		std::string                         username_;
 		std::string                         password_;
         void*                               plat_config_;
-        std::unique_ptr<MqttDriver>         driver_;
+        std::unique_ptr<Driver>         driver_;
 
-        std::unique_ptr<MqttDriver> create_driver_(); // defined per-platform.
+        std::unique_ptr<Driver> create_driver_(); // defined per-platform.
 
-		MqttTransport(const MqttTransport&);
-		MqttTransport& operator=(const MqttTransport&);
+		Transport(const Transport&);
+		Transport& operator=(const Transport&);
 
 		Status handleSubscription(const string& topic, CallbackPointer fn) override;
 };
 
-class MqttDriver {
+class Driver {
 public:
-	virtual ~MqttDriver() = default;
+	virtual Status connect() = 0;
+	virtual ~Driver() = default;
 };
 
+} // namespace mqtt
+} // namespace trans
 } // namespace gv
 #endif

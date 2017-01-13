@@ -72,13 +72,13 @@ extern "C" {
 #include "hw_memmap.h"      // Where in RAM are the hardware ports mapped
 #include "rom_map.h"        // Uses ROM if available, defaults to RAM
 #include "uart.h"           // UART low-level interface
-#include "sl_mqtt_client.h" // SimpleLink MQTT Client Implementation
+#include "sl_mqtt_client.h" // SimpleLink MQTT Client implementation
 
 
+namespace gv { namespace ti_simplelink { namespace trans { namespace mqtt {
 
-namespace gv {
-using PlatConfig = ti_simplelink::SlMqtt_PlatConfig;
-
+using Driver = gv::trans::mqtt::Driver;
+using Transport = gv::trans::mqtt::Transport;
 
 
 namespace {
@@ -159,24 +159,34 @@ namespace {
     }
 
 
+
 } // anonymous namespace
 
-void ti_simplelink::set_uart_base(unsigned long base) {
+void set_uart_base(unsigned long base) {
     UART_BASE = base;
 }
 
 
-class MqttDriver_sl : public MqttDriver {
+class MqttDriver_sl : public Driver {
     PlatConfig* config_;
 public:
     MqttDriver_sl(void* plat_config)
         : config_(static_cast<PlatConfig*>(plat_config)) { }
+    Status connect() override;
+    
 };
 
-std::unique_ptr<MqttDriver> MqttTransport::create_driver_() {
-    return std::make_unique<MqttDriver_sl>( static_cast<void*>(plat_config_) );
+
+
+
+Status MqttDriver_sl::connect() {
+    config_->dbg("MqttDriver_sl: connecting");
+    return Status::ok();
 }
 
+}}}} // namespace gv::ti_simplelink::trans:mqtt
 
 
+std::unique_ptr<gv::trans::mqtt::Driver> gv::trans::mqtt::Transport::create_driver_() {
+    return std::make_unique<gv::ti_simplelink::trans::mqtt::MqttDriver_sl>( static_cast<void*>(plat_config_) );
 }

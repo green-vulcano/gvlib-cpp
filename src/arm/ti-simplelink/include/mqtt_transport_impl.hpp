@@ -50,23 +50,31 @@
 
 namespace gv {
 namespace ti_simplelink {
+namespace trans {
+namespace mqtt {
 
 /**
  * Specific configuration for TI SimpleLink devices
  */
-struct SlMqtt_PlatConfig {
+struct PlatConfig {
     unsigned  server_response_secs; //!< Reasonable server response time
     unsigned  mqtt_task_priority;   //!< RTOS priority for MQTT RX task
     bool      debug;                //!< Enable debug information
     int (*dbg_print)(const char *fmt, ...); //!< Debug function.
                                     //!< Not passing one will result in
                                     //!< platform default being used.
+
+    template<typename ... Args> void dbg( const char* fmt, Args ... args ) {
+        if (debug && dbg_print) {
+            dbg_print(fmt, args ...);
+        }
+    }
+
 };
 
 void set_uart_base(unsigned long base);
 
-}
-}
+}}}} // namespace gv::ti_simplelink::trans::mqtt
 
 
 #endif

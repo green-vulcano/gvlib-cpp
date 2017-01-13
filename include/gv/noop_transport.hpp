@@ -50,6 +50,7 @@
 #include <errno.h>
 
 namespace gv {
+namespace trans {
 
 class NoopTransport : public Transport {
 	public:
@@ -90,6 +91,7 @@ class NoopTransport : public Transport {
 			return Status::ok();
 		}
 };
+} // namespace trans 
 } // namespace gv
 
 

@@ -41,9 +41,9 @@
 
  #include "gv/mqtt_transport.hpp"
 
-namespace gv {
+namespace gv { namespace trans { namespace mqtt {
 
-MqttTransport::MqttTransport(
+Transport::Transport(
 	const DeviceInfo& info, const IPAddr& server, uint16_t port,
 	void* plat_config,
 	const std::string& username, const std::string& password
@@ -51,6 +51,9 @@ MqttTransport::MqttTransport(
 	username_(username), password_(password),
 	plat_config_(plat_config), driver_(create_driver_()) { }
 
+Status Transport::connect() {
+	return driver_->connect();
+}
 	
 
-}
+}}} // namespace gv::trans:mqtt
