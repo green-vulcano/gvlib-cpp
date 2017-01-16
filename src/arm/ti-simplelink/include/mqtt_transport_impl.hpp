@@ -58,6 +58,7 @@ namespace mqtt {
  */
 struct PlatConfig {
     unsigned  server_response_secs; //!< Reasonable server response time
+    unsigned  keep_alive_secs;       //!< Message KeepAlive time
     unsigned  mqtt_task_priority;   //!< RTOS priority for MQTT RX task
     bool      debug;                //!< Enable debug information
     int (*dbg_print)(const char *fmt, ...); //!< Debug function.

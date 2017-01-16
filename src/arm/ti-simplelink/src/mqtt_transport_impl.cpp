@@ -66,6 +66,7 @@ extern "C" {
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
 
 
 // Texas Instruments bare-metal and SimpleLink includes
@@ -273,8 +274,13 @@ Status MqttDriver_sl::connect() {
         }
     }
 
-    
-
+    _i32 res = sl_ExtLib_MqttClientConnect(clt_ctx_, true, config_->keep_alive_secs);
+    if ((res & 0xFF) != 0) {
+        config_->dbg("MqttDriver_sl: connection aborted.");
+        return Status::by_code(-ECONNABORTED);
+    }
+    config_->dbg("MqttDriver_sl: connection established.");
+    return Status::ok(); 
         // if((sl_ExtLib_MqttClientConnect((void*)local_con_conf[iCount].clt_ctx,
         //                     local_con_conf[iCount].is_clean,
         //                     local_con_conf[iCount].keep_alive_time) & 0xFF) != 0)  
