@@ -55,14 +55,38 @@ namespace mqtt {
 class Driver;
 class WillConfig;
 
+enum Qos : short {
+	AT_MOST_ONCE ,
+	AT_LEAST_ONCE,
+	EXACTLY_ONCE
+};
+
+struct WillConfig {
+	const std::string will_topic;
+	const std::string will_message;
+	const Qos         will_qos;
+	const bool        will_retain;
+
+	static WillConfig for_device(const std::string& device_id) {
+        return WillConfig { "/device/"+device_id+"/status",
+                            "{\"status\": \"offline\"}",
+                            Qos::EXACTLY_ONCE,
+							true };
+    }
+};
+
 /**
  * Transport using the MQTT Protocol.
  */
-class Transport : public gv::Transport, private ServerAndPort {
+class Transport : public gv::Transport,
+	public gv::WithDeviceInfo,
+	public WithServerAndPort,
+	public WithUsernameAndPassword
+{
 	public:
 		Transport(
             const DeviceInfo& info, const IPAddr& server, uint16_t port,
-            void* plat_config,
+            void* plat_config, const WillConfig& will_config, //use for_device
 			const std::string& username="", const std::string& password=""
         );
 		Status connect() override;
@@ -72,11 +96,9 @@ class Transport : public gv::Transport, private ServerAndPort {
 		StatusRet<bool> poll() override;
 
 	private:
-		const DeviceInfo&                   deviceInfo_;
-		std::string                         username_;
-		std::string                         password_;
         void*                               plat_config_;
-        std::unique_ptr<Driver>         driver_;
+		WillConfig                          will_config_;
+        std::unique_ptr<Driver>             driver_;
 
         std::unique_ptr<Driver> create_driver_(); // defined per-platform.
 

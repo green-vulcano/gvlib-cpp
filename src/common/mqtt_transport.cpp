@@ -45,11 +45,12 @@ namespace gv { namespace trans { namespace mqtt {
 
 Transport::Transport(
 	const DeviceInfo& info, const IPAddr& server, uint16_t port,
-	void* plat_config,
+	void* plat_config, const WillConfig& will_config,
 	const std::string& username, const std::string& password
-) : ServerAndPort(server, port), deviceInfo_(info),
-	username_(username), password_(password),
-	plat_config_(plat_config), driver_(create_driver_()) { }
+) : WithDeviceInfo(info), WithServerAndPort(server, port),
+	WithUsernameAndPassword(username, password),
+	plat_config_(plat_config), will_config_(will_config),
+	driver_(create_driver_()) { }
 
 Status Transport::connect() {
 	return driver_->connect();

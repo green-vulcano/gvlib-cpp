@@ -62,7 +62,7 @@ Status Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
 
     string payload = format("{\"nm\":\"%s\",\"ip\":\"%s\",\"prt\":\"%d\"}",
                             deviceInfo_.name().c_str(),
-                            static_cast<string>(deviceInfo_.ip()).c_str(),
+                            deviceInfo_.addr().c_str(),
                             deviceInfo_.port());
 
 	string service = format("/devices/%s", deviceInfo_.id().c_str());

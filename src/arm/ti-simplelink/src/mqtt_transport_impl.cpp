@@ -51,7 +51,7 @@
      extern "C" before including "simplelink.h", and then test the specific
      SimpleLink version to check if we need to close it.
    TODO: keep track of future SimpleLink versions
- */ 
+ */
 extern "C" {
 #include "simplelink.h"
 #if (! (SL_MAJOR_VERSION_NUM==1L && SL_MINOR_VERSION_NUM==0L && SL_VERSION_NUM==1L && SL_SUB_VERSION_NUM==6L ))
@@ -65,6 +65,7 @@ extern "C" {
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 
 
 // Texas Instruments bare-metal and SimpleLink includes
@@ -79,6 +80,7 @@ namespace gv { namespace ti_simplelink { namespace trans { namespace mqtt {
 
 using Driver = gv::trans::mqtt::Driver;
 using Transport = gv::trans::mqtt::Transport;
+using WillConfig = gv::trans::mqtt::WillConfig;
 
 
 namespace {
@@ -158,6 +160,63 @@ namespace {
                         (src.dbg_print ? src.dbg_print : sl_uart_printf);
     }
 
+    void gv_to_sl(const WillConfig& src, SlMqttWill_t& dst) {
+        dst.will_topic = src.will_topic.c_str();
+        dst.will_msg = src.will_message.c_str();
+        dst.will_qos = static_cast<char>(src.will_qos);
+        dst.retain   = src.will_retain;
+    }
+
+    void gv_to_sl(const Transport& trs, SlMqttClientCtxCfg_t& dst) {       
+//        dst.server_info.netconn_flags = 0x0; //SL_MQTT SL_MQTT_NETCONN_URL;
+        memset(&dst, '\0', sizeof(dst));
+        dst.server_info.server_addr = trs.server().c_str();
+        dst.server_info.port_number = trs.port();
+        dst.mqtt_mode31 = false;
+        dst.blocking_send = true;
+    }
+
+/* Callback functions for the SimpleLink MQTT Client */
+extern "C" {
+
+void
+sl_cb_Mqtt_Recv(void *app_hndl, const char  *topstr, long top_len, const void *payload,
+                       long pay_len, bool dup, unsigned char qos, bool retain)
+{
+    
+
+}
+
+
+
+
+void sl_cb_MqttEvt(
+    void *app_hndl, long evt, const void *buf, unsigned long len)
+{
+    switch(evt)
+    {
+      case SL_MQTT_CL_EVT_PUBACK:
+        break;
+    
+      case SL_MQTT_CL_EVT_SUBACK:
+        break;
+        
+      case SL_MQTT_CL_EVT_UNSUBACK:
+        break;
+    
+      default:
+        break;
+  
+    }
+}
+
+void sl_cb_MqttDisconnect(void *app_hndl)
+{
+
+}
+
+} // extern "C"
+
 
 
 } // anonymous namespace
@@ -168,10 +227,15 @@ void set_uart_base(unsigned long base) {
 
 
 class MqttDriver_sl : public Driver {
+    Transport*  transport_;
     PlatConfig* config_;
+    WillConfig* will_config_;
+    void*       clt_ctx_;
 public:
-    MqttDriver_sl(void* plat_config)
-        : config_(static_cast<PlatConfig*>(plat_config)) { }
+    MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
+        : transport_(transport),
+          config_(static_cast<PlatConfig*>(plat_config)),
+          will_config_(will_config) { }
     Status connect() override;
     
 };
@@ -181,6 +245,41 @@ public:
 
 Status MqttDriver_sl::connect() {
     config_->dbg("MqttDriver_sl: connecting");
+    SlMqttClientLibCfg_t  sl_cfg;
+    SlMqttClientCtxCfg_t  sl_clt_ctx_cfg_;
+    SlMqttClientCbs_t     sl_cbs = { sl_cb_Mqtt_Recv, sl_cb_MqttEvt, sl_cb_MqttDisconnect };
+
+    gv_to_sl(*config_, sl_cfg);
+    gv_to_sl(*transport_, sl_clt_ctx_cfg_);
+
+    // Creating the Client Context, passing the current sl_MqttDriver instance
+    // as app handle.
+    clt_ctx_ = sl_ExtLib_MqttClientCtxCreate(&sl_clt_ctx_cfg_, &sl_cbs, this);
+    const string& device_id = transport_->device_info().id();
+    sl_ExtLib_MqttClientSet(clt_ctx_, SL_MQTT_PARAM_CLIENT_ID, device_id.c_str(), device_id.length());
+
+    if (!will_config_->will_topic.empty() && !will_config_->will_message.empty()) {
+        SlMqttWill_t sl_will;
+        gv_to_sl(*will_config_, sl_will);
+        sl_ExtLib_MqttClientSet(clt_ctx_, SL_MQTT_PARAM_WILL_PARAM, &sl_will, sizeof(SlMqttWill_t));
+    }
+
+    if (!transport_->username().empty()) {
+        sl_ExtLib_MqttClientSet(clt_ctx_, SL_MQTT_PARAM_USER_NAME,
+            transport_->username().c_str(), transport_->username().length());
+        if (!transport_->password().empty()) {
+            sl_ExtLib_MqttClientSet(clt_ctx_, SL_MQTT_PARAM_PASS_WORD,
+                transport_->password().c_str(), transport_->password().length());
+        }
+    }
+
+    
+
+        // if((sl_ExtLib_MqttClientConnect((void*)local_con_conf[iCount].clt_ctx,
+        //                     local_con_conf[iCount].is_clean,
+        //                     local_con_conf[iCount].keep_alive_time) & 0xFF) != 0)  
+
+
     return Status::ok();
 }
 
@@ -188,5 +287,6 @@ Status MqttDriver_sl::connect() {
 
 
 std::unique_ptr<gv::trans::mqtt::Driver> gv::trans::mqtt::Transport::create_driver_() {
-    return std::make_unique<gv::ti_simplelink::trans::mqtt::MqttDriver_sl>( static_cast<void*>(plat_config_) );
+    return std::make_unique<gv::ti_simplelink::trans::mqtt::MqttDriver_sl>(
+        this, static_cast<void*>(plat_config_), &will_config_ );
 }

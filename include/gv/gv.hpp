@@ -138,18 +138,18 @@ class IPAddr {
  **************************************************************************/
 class DeviceInfo {
 	public:
-		DeviceInfo(const string& id, const string& name, const IPAddr& addr, uint16_t port) : 
+		DeviceInfo(const string& id, const string& name, const string& addr, uint16_t port) : 
 			id_(id), name_(name), addr_(addr), port_(port) { }
 
 		const string&  id()   const { return id_;   }
 		const string&  name() const { return name_; }
-		const IPAddr&  ip()   const { return addr_; }
+		const string&  addr()   const { return addr_; }
 		uint16_t       port() const { return port_; }
 
 	private:
 		string   id_;
 		string   name_;
-		IPAddr   addr_;
+		string   addr_;
 		uint16_t port_;
 };
 
@@ -362,19 +362,40 @@ class GVComm {
 		Protocol&         protocol_;
 };
 
-/**************************************************************************
- *
- **************************************************************************/
-class ServerAndPort {
-	protected:
-		const IPAddr&  server() const { return server_; }
-		uint16_t       port()   const { return port_; }
 
-		ServerAndPort(const IPAddr& server, uint16_t port) : 
+
+/**************************************************************************
+ * Mix-in classes
+ **************************************************************************/
+class WithDeviceInfo {
+	DeviceInfo info_;
+public:
+	WithDeviceInfo(const DeviceInfo& info) : info_(info) { }
+	const DeviceInfo& device_info() const { return info_; }
+};
+
+class WithServerAndPort {
+	public:
+		const std::string& server() const { return server_; }
+		uint16_t           port()   const { return port_; }
+
+		WithServerAndPort(const std::string& server, uint16_t port) : 
 			server_(server), port_(port) { }		
 	private:
-		IPAddr   server_;
-		uint16_t port_;
+		std::string   server_;
+		uint16_t      port_;
+};
+
+class WithUsernameAndPassword {
+	public:
+		const std::string& username() const { return username_; }
+		const std::string& password() const { return password_; }
+		WithUsernameAndPassword(
+			const std::string& username, const std::string& password)
+			: username_(username), password_(password) { }
+	private:
+		std::string username_;
+		std::string password_;
 };
 
 } // namespace gv
