@@ -43,18 +43,6 @@
 
 namespace gv { namespace trans { namespace mqtt {
 
-Transport::Transport(
-	const DeviceInfo& info, const IPAddr& server, uint16_t port,
-	void* plat_config, const WillConfig& will_config,
-	const std::string& username, const std::string& password
-) : WithDeviceInfo(info), WithServerAndPort(server, port),
-	WithUsernameAndPassword(username, password),
-	plat_config_(plat_config), will_config_(will_config),
-	driver_(create_driver_()) { }
-
-Status Transport::connect() {
-	return driver_->connect();
-}
 	
 
 }}} // namespace gv::trans:mqtt

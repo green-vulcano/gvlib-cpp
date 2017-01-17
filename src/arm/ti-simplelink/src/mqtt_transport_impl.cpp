@@ -184,8 +184,9 @@ void
 sl_cb_Mqtt_Recv(void *app_hndl, const char  *topstr, long top_len, const void *payload,
                        long pay_len, bool dup, unsigned char qos, bool retain)
 {
-    
-
+    Callback::call(
+        string(topstr, top_len),
+        gv::CallbackParam( string(static_cast<const char*>(payload), pay_len)) );
 }
 
 
@@ -232,19 +233,26 @@ class MqttDriver_sl : public Driver {
     PlatConfig* config_;
     WillConfig* will_config_;
     void*       clt_ctx_;
+    bool        connected_;
 public:
     MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
         : transport_(transport),
           config_(static_cast<PlatConfig*>(plat_config)),
           will_config_(will_config) { }
     Status connect() override;
-    
+    bool connected() override { return connected_; }
+    Status disconnect() override;
+	Status send(const std::string& service, const std::string& payload) override;
+	StatusRet<bool> poll() override;
+    Status handleSubscription(const string& topic, CallbackPointer fn) override;
 };
 
 
 
 
 Status MqttDriver_sl::connect() {
+    if (connected_) return Status::ok();
+
     config_->dbg("MqttDriver_sl: connecting");
     SlMqttClientLibCfg_t  sl_cfg;
     SlMqttClientCtxCfg_t  sl_clt_ctx_cfg_;
@@ -280,13 +288,48 @@ Status MqttDriver_sl::connect() {
         return Status::by_code(-ECONNABORTED);
     }
     config_->dbg("MqttDriver_sl: connection established.");
+    connected_ = true;
     return Status::ok(); 
-        // if((sl_ExtLib_MqttClientConnect((void*)local_con_conf[iCount].clt_ctx,
-        //                     local_con_conf[iCount].is_clean,
-        //                     local_con_conf[iCount].keep_alive_time) & 0xFF) != 0)  
+}
 
+Status MqttDriver_sl::disconnect() {
+    if (!connected_) return Status::ok();
+    _i32 res = sl_ExtLib_MqttClientDisconnect(clt_ctx_);
+    if (res == 0) {
+        connected_ = false;
+        sl_ExtLib_MqttClientCtxDelete(clt_ctx_);
+        clt_ctx_ = nullptr;
+        return Status::ok();
+    }
+    return Status::unknown(); // currently don't know why disconnect failed
+                              // TODO: improve diagnostics here
+}
 
-    return Status::ok();
+Status MqttDriver_sl::send(const std::string& service, const std::string& payload) {
+    if (!connected_) return Status::by_code(-ENOTCONN);
+
+    _i32 res = sl_ExtLib_MqttClientSend(clt_ctx_, service.c_str(),
+          payload.c_str(), payload.length(),  config_->default_qos, false); // TODO: retain not handled for now
+    if (res == 0) {
+        return Status::ok();
+    }
+    return Status::unknown(); // TODO: better return code handling / translation
+}
+
+Status MqttDriver_sl::handleSubscription(const string& topic, CallbackPointer fn) {
+    char* topics[] { const_cast<char*>(topic.c_str()) };
+    _u8   qos[]    { config_->default_qos };
+    _i32 res = sl_ExtLib_MqttClientSub(clt_ctx_, topics, qos, 1);
+    if (res == 0) {
+        Callback::add(topic, fn);
+        return Status::ok();
+    }
+    return Status::unknown(); // TODO: better return code handling / translation    
+}
+
+StatusRet<bool> MqttDriver_sl::poll()  {
+    // currently only asynchronous
+    return StatusRet<bool>::ok(false);
 }
 
 }}}} // namespace gv::ti_simplelink::trans:mqtt

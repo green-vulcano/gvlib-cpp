@@ -47,6 +47,7 @@
 
 #include "gv/gv.hpp"
 #include <memory>
+#include <cstdint>
 
 namespace gv {
 namespace trans {
@@ -55,7 +56,7 @@ namespace mqtt {
 class Driver;
 class WillConfig;
 
-enum Qos : short {
+enum Qos : std::uint8_t {
 	AT_MOST_ONCE ,
 	AT_LEAST_ONCE,
 	EXACTLY_ONCE
@@ -75,26 +76,41 @@ struct WillConfig {
     }
 };
 
+class Driver {
+public:
+	virtual Status connect() = 0;
+	virtual bool connected() = 0;
+	virtual Status disconnect() = 0;
+	virtual Status send(const std::string& service, const std::string& payload) = 0;
+	virtual StatusRet<bool> poll() = 0;
+	virtual Status handleSubscription(const string& topic, CallbackPointer fn) = 0;
+	virtual ~Driver() = default;
+};
+
+
 /**
  * Transport using the MQTT Protocol.
  */
 class Transport : public gv::Transport,
 	public gv::WithDeviceInfo,
-	public WithServerAndPort,
-	public WithUsernameAndPassword
+	public gv::WithServerAndPort,
+	public gv::WithUsernameAndPassword
 {
 	public:
 		Transport(
             const DeviceInfo& info, const IPAddr& server, uint16_t port,
             void* plat_config, const WillConfig& will_config, //use for_device
 			const std::string& username="", const std::string& password=""
-        );
-		Status connect() override;
-		bool connected() override;
-		Status disconnect() override;
-		Status send(const std::string& service, const std::string& payload) override;
-		StatusRet<bool> poll() override;
-
+        ) : WithDeviceInfo(info), WithServerAndPort(server, port),
+			WithUsernameAndPassword(username, password),
+			plat_config_(plat_config), will_config_(will_config),
+			driver_(create_driver_()) { }
+		Status connect() override    { return driver_->connect();    }
+		bool connected() override    { return driver_->connected();  }
+		Status disconnect() override { return driver_->disconnect(); }
+		Status send(const std::string& service, const std::string& payload)
+		           override { return driver_->send(service, payload); }
+		StatusRet<bool> poll() override { return driver_->poll(); }
 	private:
         void*                               plat_config_;
 		WillConfig                          will_config_;
@@ -105,14 +121,10 @@ class Transport : public gv::Transport,
 		Transport(const Transport&);
 		Transport& operator=(const Transport&);
 
-		Status handleSubscription(const string& topic, CallbackPointer fn) override;
+		Status handleSubscription(const string& topic, CallbackPointer fn)
+			   override { return driver_->handleSubscription(topic, fn); }
 };
 
-class Driver {
-public:
-	virtual Status connect() = 0;
-	virtual ~Driver() = default;
-};
 
 } // namespace mqtt
 } // namespace trans

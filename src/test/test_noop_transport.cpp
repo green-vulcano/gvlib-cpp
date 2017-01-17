@@ -17,9 +17,8 @@ CallbackParam func ( CallbackParam p ) {
 }
 
 int main() {
-	uint8_t ip[] = { 192, 168, 1, 2 };
-	DeviceInfo      info { "deviceId", "DeviceName", IPAddr(ip, IPAddr::IPv4), 1883 };
-	NoopTransport   trans;
+	DeviceInfo info { "deviceId", "DeviceName", "192.168.1.2", 1883 };
+	trans::NoopTransport   trans;
 	protocols::DefaultProtocol proto { info, trans };
 	GVComm comm { info, trans, proto };
 

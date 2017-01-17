@@ -159,7 +159,7 @@ class DeviceInfo {
 struct CallbackParam {
 	string  data;
 	int     param;
-	CallbackParam(const string& data_, int param_) : data(data_), param(param_) { }
+	CallbackParam(const string& data_, int param_=0) : data(data_), param(param_) { }
 };
 
 

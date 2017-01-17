@@ -47,18 +47,22 @@
 
 #include <string>
 #include <cstdint>
+#include "gv/mqtt_transport.hpp"
 
 namespace gv {
 namespace ti_simplelink {
 namespace trans {
 namespace mqtt {
 
+using Qos = gv::trans::mqtt::Qos;
+
 /**
  * Specific configuration for TI SimpleLink devices
  */
 struct PlatConfig {
     unsigned  server_response_secs; //!< Reasonable server response time
-    unsigned  keep_alive_secs;       //!< Message KeepAlive time
+    unsigned  keep_alive_secs;      //!< Message KeepAlive time
+    Qos       default_qos;          //!< Message Quality of Service
     unsigned  mqtt_task_priority;   //!< RTOS priority for MQTT RX task
     bool      debug;                //!< Enable debug information
     int (*dbg_print)(const char *fmt, ...); //!< Debug function.
