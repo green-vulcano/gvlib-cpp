@@ -261,6 +261,10 @@ Status MqttDriver_sl::connect() {
     gv_to_sl(*config_, sl_cfg);
     gv_to_sl(*transport_, sl_clt_ctx_cfg_);
 
+    _i32 res = sl_ExtLib_MqttClientInit(&sl_cfg);
+    if (res != 0) {
+        return Status::by_code(-ECONNABORTED);
+    }
     // Creating the Client Context, passing the current sl_MqttDriver instance
     // as app handle.
     clt_ctx_ = sl_ExtLib_MqttClientCtxCreate(&sl_clt_ctx_cfg_, &sl_cbs, this);
@@ -282,7 +286,7 @@ Status MqttDriver_sl::connect() {
         }
     }
 
-    _i32 res = sl_ExtLib_MqttClientConnect(clt_ctx_, true, config_->keep_alive_secs);
+    res = sl_ExtLib_MqttClientConnect(clt_ctx_, true, config_->keep_alive_secs);
     if ((res & 0xFF) != 0) {
         config_->dbg("MqttDriver_sl: connection aborted.");
         return Status::by_code(-ECONNABORTED);
@@ -298,6 +302,7 @@ Status MqttDriver_sl::disconnect() {
     if (res == 0) {
         connected_ = false;
         sl_ExtLib_MqttClientCtxDelete(clt_ctx_);
+        sl_ExtLib_MqttClientExit();
         clt_ctx_ = nullptr;
         return Status::ok();
     }
