@@ -60,7 +60,8 @@ PROJBASE=.
 ifeq (arm, $(findstring arm, ${MAKECMDGOALS}))
 	PREFIX=arm-none-eabi-
 else
-	PREFIX=
+	PREFIX=arm-none-eabi-
+	#the same for now as we haven't enabled x86 yet
 endif
 
 

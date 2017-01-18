@@ -60,15 +60,5 @@
 #endif
 
 
-#define DEVICE_ID_SIZE 8 // 10
-#define DEVICE_NAME_SIZE 20
-#define HOST_SIZE 20
-#define TOPIC_NAME_SIZE 44
-
-#define MAX_ATTEMPTS 10
-
-#define MAX_ACTUATORS 10
-
-
 
 #endif /* GVLIB_PLATCONFIG_H */
