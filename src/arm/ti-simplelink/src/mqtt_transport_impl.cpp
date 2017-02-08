@@ -64,6 +64,7 @@
 #include "sl_mqtt_client.h" // SimpleLink MQTT Client implementation
 
 
+
 namespace gv { namespace ti_simplelink { namespace trans { namespace mqtt {
 
 using Driver = gv::trans::mqtt::Driver;
@@ -201,7 +202,7 @@ void sl_cb_MqttEvt(
 
 void sl_cb_MqttDisconnect(void *app_hndl)
 {
-
+    sl_uart_puts("mqtt disconnect() called\n\r");
 }
 
 } // extern "C"
@@ -225,7 +226,7 @@ public:
     MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
         : transport_(transport),
           config_(static_cast<PlatConfig*>(plat_config)),
-          will_config_(will_config) { }
+          will_config_(will_config), connected_(false) { }
     Status connect() override;
     bool connected() override { return connected_; }
     Status disconnect() override;
@@ -240,7 +241,8 @@ public:
 Status MqttDriver_sl::connect() {
     if (connected_) return Status::ok();
 
-    config_->dbg("MqttDriver_sl: connecting");
+    config_->dbg("MqttDriver_sl: connecting\n\r");
+
     SlMqttClientLibCfg_t  sl_cfg;
     SlMqttClientCtxCfg_t  sl_clt_ctx_cfg_;
     SlMqttClientCbs_t     sl_cbs = { sl_cb_Mqtt_Recv, sl_cb_MqttEvt, sl_cb_MqttDisconnect };
@@ -254,9 +256,11 @@ Status MqttDriver_sl::connect() {
     }
     // Creating the Client Context, passing the current sl_MqttDriver instance
     // as app handle.
+    
     clt_ctx_ = sl_ExtLib_MqttClientCtxCreate(&sl_clt_ctx_cfg_, &sl_cbs, this);
     const string& device_id = transport_->device_info().id();
     sl_ExtLib_MqttClientSet(clt_ctx_, SL_MQTT_PARAM_CLIENT_ID, device_id.c_str(), device_id.length());
+
 
     if (!will_config_->will_topic.empty() && !will_config_->will_message.empty()) {
         SlMqttWill_t sl_will;
@@ -279,6 +283,7 @@ Status MqttDriver_sl::connect() {
         return Status::by_code(-ECONNABORTED);
     }
     config_->dbg("MqttDriver_sl: connection established.");
+    
     connected_ = true;
     return Status::ok(); 
 }

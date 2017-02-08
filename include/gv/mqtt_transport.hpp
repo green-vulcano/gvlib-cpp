@@ -98,7 +98,7 @@ class Transport : public gv::Transport,
 {
 	public:
 		Transport(
-            const DeviceInfo& info, const IPAddr& server, uint16_t port,
+            const DeviceInfo& info, const std::string& server, uint16_t port,
             void* plat_config, const WillConfig& will_config, //use for_device
 			const std::string& username="", const std::string& password=""
         ) : WithDeviceInfo(info), WithServerAndPort(server, port),
