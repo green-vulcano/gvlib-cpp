@@ -318,7 +318,6 @@ Status MqttDriver_sl::handleSubscription(const string& topic, CallbackPointer fn
     _u8   qos[]    { config_->default_qos };
     _i32 res = sl_ExtLib_MqttClientSub(clt_ctx_, topics, qos, 1);
     if (res == 0) {
-        Callback::add(topic, fn);
         return Status::ok();
     }
     return Status::unknown(); // TODO: better return code handling / translation    

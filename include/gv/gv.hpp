@@ -290,7 +290,7 @@ class Transport {
 			if (s.is_ok()) {
 				GV_DEBUG("Subscribe: ");
 				GV_DEBUGLN(topic.c_str());
-				//Callback::add(topic, cb);
+				Callback::add(topic, cb);
 			}
 			return s;
 		}
