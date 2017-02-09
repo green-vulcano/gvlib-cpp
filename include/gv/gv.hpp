@@ -89,12 +89,13 @@ public:
  TOPIC MQTT
 /devices
 /devices/<ID_DEVICE>
+/devices/<ID_DEVICE>/status
 /devices/<ID_DEVICE>/sensors
 /devices/<ID_DEVICE>/sensors/<ID_SENSOR>
+/devices/<ID_DEVICE>/sensors/<ID_SENSOR>/data
 /devices/<ID_DEVICE>/actuators
 /devices/<ID_DEVICE>/actuators/<ID_ACTAUTOR>
-/devices/<ID_DEVICE>/sensors/<ID_SENSOR>/data
-/devices/<ID_DEVICE>/status
+/devices/<ID_DEVICE>/actuators/<ID_ACTAUTOR>/input
 */
 
 
