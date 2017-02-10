@@ -63,6 +63,8 @@
 #include "uart.h"           // UART low-level interface
 #include "sl_mqtt_client.h" // SimpleLink MQTT Client implementation
 
+// forward declaration of C callback functions needing to access
+// the `MqttDriver_sl` internals.
 
 
 namespace gv { namespace ti_simplelink { namespace trans { namespace mqtt {
@@ -70,6 +72,33 @@ namespace gv { namespace ti_simplelink { namespace trans { namespace mqtt {
 using Driver = gv::trans::mqtt::Driver;
 using Transport = gv::trans::mqtt::Transport;
 using WillConfig = gv::trans::mqtt::WillConfig;
+
+
+// forward declaration as it needs access to the
+// internals of MqttDriver_sl (i.e. friend function)
+extern "C" void sl_cb_MqttDisconnect(void *app_hndl);
+
+
+
+class MqttDriver_sl : public Driver {
+    Transport*  transport_;
+    PlatConfig* config_;
+    WillConfig* will_config_;
+    void*       clt_ctx_;
+    volatile bool connected_;
+public:
+    MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
+        : transport_(transport),
+          config_(static_cast<PlatConfig*>(plat_config)),
+          will_config_(will_config), connected_(false) { }
+    Status connect() override;
+    bool connected() override { return connected_; }
+    Status disconnect() override;
+	Status send(const std::string& service, const std::string& payload) override;
+	StatusRet<bool> poll() override;
+    Status handleSubscription(const string& topic, CallbackPointer fn) override;
+    friend void sl_cb_MqttDisconnect(void *app_hndl);
+};
 
 
 namespace {
@@ -200,40 +229,24 @@ void sl_cb_MqttEvt(
     }
 }
 
-void sl_cb_MqttDisconnect(void *app_hndl)
-{
-    sl_uart_puts("mqtt disconnect() called\n\r");
-}
 
 } // extern "C"
-
-
-
 } // anonymous namespace
+
+
+// this was forward declared and is a friend of MqttDriver_sl,
+// so can't stay in an anonymous namespace.
+extern "C" void sl_cb_MqttDisconnect(void *app_hndl)
+{
+    MqttDriver_sl* driver = static_cast<MqttDriver_sl*>(app_hndl);
+    driver->connected_ = false;
+    driver->config_->dbg("MQTT broker disconnected\n\r");
+}
 
 void set_uart_base(unsigned long base) {
     UART_BASE = base;
 }
 
-
-class MqttDriver_sl : public Driver {
-    Transport*  transport_;
-    PlatConfig* config_;
-    WillConfig* will_config_;
-    void*       clt_ctx_;
-    bool        connected_;
-public:
-    MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
-        : transport_(transport),
-          config_(static_cast<PlatConfig*>(plat_config)),
-          will_config_(will_config), connected_(false) { }
-    Status connect() override;
-    bool connected() override { return connected_; }
-    Status disconnect() override;
-	Status send(const std::string& service, const std::string& payload) override;
-	StatusRet<bool> poll() override;
-    Status handleSubscription(const string& topic, CallbackPointer fn) override;
-};
 
 
 
