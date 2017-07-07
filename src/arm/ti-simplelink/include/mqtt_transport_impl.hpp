@@ -64,6 +64,7 @@ struct PlatConfig {
     unsigned  keep_alive_secs;      //!< Message KeepAlive time
     Qos       default_qos;          //!< Message Quality of Service
     unsigned  mqtt_task_priority;   //!< RTOS priority for MQTT RX task
+    bool      reconnect_on_abort;   //!< Automatically retry to reconnect
     bool      debug;                //!< Enable debug information
     int (*dbg_print)(const char *fmt, ...); //!< Debug function.
                                     //!< Not passing one will result in

@@ -86,11 +86,12 @@ class MqttDriver_sl : public Driver {
     WillConfig* will_config_;
     void*       clt_ctx_;
     volatile bool connected_;
+    volatile bool want_connection_up_;
 public:
     MqttDriver_sl(Transport* transport, void* plat_config, WillConfig* will_config)
         : transport_(transport),
           config_(static_cast<PlatConfig*>(plat_config)),
-          will_config_(will_config), connected_(false) { }
+          will_config_(will_config), connected_(false), want_connection_up_(false) { }
     Status connect() override;
     bool connected() override { return connected_; }
     Status disconnect() override;
@@ -241,6 +242,9 @@ extern "C" void sl_cb_MqttDisconnect(void *app_hndl)
     MqttDriver_sl* driver = static_cast<MqttDriver_sl*>(app_hndl);
     driver->connected_ = false;
     driver->config_->dbg("MQTT broker disconnected\n\r");
+    if (driver->want_connection_up_ && driver->config_->reconnect_on_abort) {
+        driver->connect();
+    }
 }
 
 void set_uart_base(unsigned long base) {
@@ -252,6 +256,8 @@ void set_uart_base(unsigned long base) {
 
 
 Status MqttDriver_sl::connect() {
+    static bool mqtt_lib_initialized = false;
+    want_connection_up_ = true;
     if (connected_) return Status::ok();
 
     config_->dbg("MqttDriver_sl: connecting\n\r");
@@ -262,10 +268,14 @@ Status MqttDriver_sl::connect() {
 
     gv_to_sl(*config_, sl_cfg);
     gv_to_sl(*transport_, sl_clt_ctx_cfg_);
-
-    _i32 res = sl_ExtLib_MqttClientInit(&sl_cfg);
-    if (res != 0) {
-        return Status::by_code(-ECONNABORTED);
+    
+    _i32 res = 0;
+    if (!mqtt_lib_initialized) {
+        res = sl_ExtLib_MqttClientInit(&sl_cfg);
+        if (res != 0) {
+            return Status::by_code(-ECONNABORTED);
+        }
+        mqtt_lib_initialized = true;
     }
     // Creating the Client Context, passing the current sl_MqttDriver instance
     // as app handle.
@@ -302,6 +312,7 @@ Status MqttDriver_sl::connect() {
 }
 
 Status MqttDriver_sl::disconnect() {
+    want_connection_up_ = false;
     if (!connected_) return Status::ok();
     _i32 res = sl_ExtLib_MqttClientDisconnect(clt_ctx_);
     if (res == 0) {

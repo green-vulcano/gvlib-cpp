@@ -60,7 +60,8 @@ Status Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
         transport_.subscribe(topic, desc);
     }
 
-    string payload = format("{\"nm\":\"%s\",\"ip\":\"%s\",\"prt\":\"%d\"}",
+    string payload = format("{\"id\":\"%s\",\"nm\":\"%s\",\"ip\":\"%s\",\"prt\":\"%d\"}",
+                            deviceInfo_.id().c_str(),
                             deviceInfo_.name().c_str(),
                             deviceInfo_.addr().c_str(),
                             deviceInfo_.port());
@@ -73,7 +74,7 @@ Status Protocol_IOT_v1::addDevice(CallbackDescriptor desc) {
  * 
  **************************************************************************/
 Status Protocol_IOT_v1::addSensor(const string& id, const string& name, const string& type) {
-    string payload = format("{\"nm\":\"%s\",\"tp\":\"%s\"}", name.c_str(), type.c_str());
+    string payload = format("{\"id\":\"%s\",\"nm\":\"%s\",\"tp\":\"%s\"}", id.c_str(), name.c_str(), type.c_str());
     string service = format("/devices/%s/sensors/%s", deviceInfo_.id().c_str(), id.c_str());
 
 	return transport_.send(service, payload);
@@ -87,7 +88,7 @@ Status Protocol_IOT_v1::addActuator(const string& id, const string& name, const 
     string topic = format("/devices/%s/actuators/%s/input", deviceInfo_.id().c_str(), id.c_str());
 	transport_.subscribe(topic, desc);
 
-    string payload = format("{\"nm\":\"%s\",\"tp\":\"%s\"}", name.c_str(), type.c_str());
+    string payload = format("{\"id\":\"%s\",\"nm\":\"%s\",\"tp\":\"%s\"}", id.c_str(), name.c_str(), type.c_str());
 
 	string service = format("/devices/%s/actuators/%s", deviceInfo_.id().c_str(), id.c_str());	
 	return transport_.send(service, payload);
