@@ -100,6 +100,8 @@ IPATH+=${TI_SIMPLELINK_ROOT}/../inc
 
 
 IPATH+=${TI_SIMPLELINK_NETAPPS}/mqtt/include
+IPATH+=${TI_SIMPLELINK_NETAPPS}/mqtt/common
+IPATH+=${TI_SIMPLELINK_NETAPPS}/mqtt/platform
 
 #
 # The default rule, which causes the driver library to be built.
